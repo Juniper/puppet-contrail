@@ -24,6 +24,7 @@ class contrail::control::config (
   $secret,
   $forwarder              = '8.8.8.8',
   $dns_config             = {},
+  $manage_named_conf      = false,
   $control_config         = {},
   $control_nodemgr_config = {},
 ) {
@@ -51,9 +52,10 @@ class contrail::control::config (
     $forwarders_option = ''
   }
 
-  file { '/etc/contrail/dns/contrail-named.conf' :
-    ensure  => file,
-    content => template('contrail/contrail-named.conf.erb'),
+  if $manage_named_conf {
+    file { '/etc/contrail/dns/contrail-named.conf' :
+      ensure  => file,
+      content => template('contrail/contrail-named.conf.erb'),
+    }
   }
-
 }
