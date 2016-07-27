@@ -61,10 +61,17 @@ class contrail::webui::config (
   $redis_ip                  = '127.0.0.1',
   $contrail_webui_http_port  = '8080',
   $contrail_webui_https_port = '8143',
+<<<<<<< HEAD
   $admin_user                = 'admin',
   $admin_password            = 'admin',
   $admin_token               = '',
   $admin_tenant_name         = 'admin'
+=======
+  $admin_user,
+  $admin_password,
+  $admin_token,
+  $admin_tenant_name
+>>>>>>> 0c14d7b76eb3e383fd40f36ef2c1c3bb2a503ba4
 ) {
 
   file { '/etc/contrail/config.global.js' :
