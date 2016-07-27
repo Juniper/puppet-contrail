@@ -14,6 +14,9 @@
 # [*dns_config*]
 #   (optional) Hash of parameters for /etc/contrail/dns/contrail-dns.conf
 #
+# [*manage_named_conf*]
+#   (optional) Boolean to manage or not /etc/contrail/contrail-named.conf file
+#
 # [*control_config*]
 #   (optional) Hash of parameters for /etc/contrail/contrail-control.conf
 #
@@ -24,7 +27,11 @@ class contrail::control::config (
   $secret,
   $forwarder              = '8.8.8.8',
   $dns_config             = {},
+<<<<<<< HEAD
   $manage_named_conf      = false,
+=======
+  $manage_named_conf      = true,
+>>>>>>> fbdadb942bccdd7b13eec9df50b0ffd01134f77a
   $control_config         = {},
   $control_nodemgr_config = {},
 ) {
