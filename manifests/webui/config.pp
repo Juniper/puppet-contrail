@@ -30,7 +30,9 @@
 #
 class contrail::webui::config (
   $openstack_vip             = '127.0.0.1',
-  $contrail_vip              = '127.0.0.1',
+  $contrail_config_vip       = '127.0.0.1',
+  $contrail_analytics_vip    = '127.0.0.1',
+  $neutron_vip               = '127.0.0.1',
   $cassandra_ip              = ['127.0.0.1'],
   $redis_ip                  = '127.0.0.1',
   $contrail_webui_http_port  = '8080',
