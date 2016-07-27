@@ -8,10 +8,6 @@
 #   (optional) Hash of parameters for /etc/contrail/contrail-api.conf
 #   Defaults to {}
 #
-# [*alarm_gen_config*]
-#   (optional) Hash of parameters for /etc/contrail/contrail-alarm-gen.conf
-#   Defaults to {}
-#
 # [*config_nodemgr_config*]
 #   (optional) Hash of parameters for /etc/contrail/contrail-config-nodemgr.conf
 #   Defaults to {}
@@ -38,7 +34,6 @@
 #
 class contrail::config::config (
   $api_config              = {},
-  $alarm_gen_config        = {},
   $config_nodemgr_config   = {},
   $discovery_config        = {},
   $schema_config           = {},
@@ -48,7 +43,6 @@ class contrail::config::config (
 ) {
 
   validate_hash($api_config)
-  validate_hash($alarm_gen_config)
   validate_hash($config_nodemgr_config)
   validate_hash($discovery_config)
   validate_hash($schema_config)
@@ -58,7 +52,6 @@ class contrail::config::config (
   validate_array($basicauthusers_property)
 
   create_resources('contrail_api_config', $api_config)
-  create_resources('contrail_alarm_gen_config', $alarm_gen_config)
   create_resources('contrail_config_nodemgr_config', $config_nodemgr_config)
   create_resources('contrail_discovery_config', $discovery_config)
   create_resources('contrail_schema_config', $schema_config)
