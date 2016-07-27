@@ -37,11 +37,19 @@ class contrail::webui::config (
   $redis_ip                  = '127.0.0.1',
   $contrail_webui_http_port  = '8080',
   $contrail_webui_https_port = '8143',
+  $admin_user,
+  $admin_password,
+  $admin_token,
+  $admin_tenant_name
 ) {
 
   file { '/etc/contrail/config.global.js' :
     ensure  => file,
     content => template('contrail/config.global.js.erb'),
+  }
+  file { '/etc/contrail/contrail-webui-userauth.js' :
+    ensure  => file,
+    content => template('contrail/contrail-webui-userauth.js.erb'),
   }
 
 }
