@@ -8,23 +8,23 @@
 #   (optional) Hash of parameters for /etc/contrail/contrail-database-nodemgr.conf
 #   Defaults to {}
 #
-class contrail::database::config (
+class contrail::analyticsdatabase::config (
   $database_nodemgr_config = {},
-  $cassandra_servers       = [],
+  $cassandra_servers       = "",
   $cassandra_ip            = $::ipaddress,
   $storage_port            = '7000',
   $ssl_storage_port        = '7001',
   $client_port             = '9042',
   $client_port_thrift      = '9160',
-  $zookeeper_server_ips    = [],
-  $zookeeper_client_ip     = $::ipaddress,
-  $zookeeper_hostnames     = [],
-  $packages                = ['zookeeper'],
-  $service_name            = 'zookeeper'
+  $kafka_hostnames         = hiera('contrail_analytics_database_short_node_names', ''),
+  $vnc_api_lib_config      = {},
+  $zookeeper_server_ips    = hiera('contrail_database_node_ips'),
 ) {
   $zk_server_ip_2181 = join([join($zookeeper_server_ips, ':2181,'),":2181"],'')
   validate_hash($database_nodemgr_config)
+  validate_hash($vnc_api_lib_config)
   $contrail_database_nodemgr_config = { 'path' => '/etc/contrail/contrail-database-nodemgr.conf' }
+  $contrail_vnc_api_lib_config = { 'path' => '/etc/contrail/vnc_api_lib.ini' }
   $cassandra_seeds_list = $cassandra_servers[0,2]
   if $cassandra_seeds_list.size > 1 {
     $cassandra_seeds = join($cassandra_seeds_list,",")
@@ -33,6 +33,7 @@ class contrail::database::config (
   }
 
   create_ini_settings($database_nodemgr_config, $contrail_database_nodemgr_config)
+  create_ini_settings($vnc_api_lib_config, $contrail_vnc_api_lib_config)
   validate_ipv4_address($cassandra_ip)
 
   file { ['/var/lib/cassandra', ]:
@@ -48,7 +49,7 @@ class contrail::database::config (
 #    service_ensure => stopped,
 #    service_enable => false,
     settings => {
-      'cluster_name'          => 'ConfigDatabase',
+      'cluster_name'          => 'ContrailAnalytics',
       'listen_address'        => $cassandra_ip,
       'storage_port'          => $storage_port,
       'ssl_storage_port'      => $ssl_storage_port,
@@ -74,26 +75,18 @@ class contrail::database::config (
       'start_native_transport'      => true,
     }
   } 
-  validate_ipv4_address($zookeeper_client_ip)
-
-  file {['/usr/lib', '/usr/lib/zookeeper', '/usr/lib/zookeeper/bin/']:
-    ensure => directory
+  file { '/usr/share/kafka/config/server.properties':
+    ensure => present,
+  }->
+  file_line { 'add zookeeper servers to kafka config':
+    path => '/usr/share/kafka/config/server.properties',
+    line => "zookeeper.connect=${zk_server_ip_2181}",
+    match   => "^zookeeper.connect=.*$",
   }
-
-  file_line { 'adjust zookeeper service':
-    path => '/etc/rc.d/init.d/zookeeper',
-    line => "ZOOCFGDIR=/etc/zookeeper/conf",
-    match   => "^ZOOCFGDIR=.*$",
-  } ->
-  exec { 'systemctl daemon-reload':
-    path => '/bin',
-  } ->
-  class {'::zookeeper':
-    servers   => $zookeeper_server_ips,
-    client_ip => $zookeeper_client_ip,
-    id        => extract_id($zookeeper_hostnames, $::hostname),
-    cfg_dir   => '/etc/zookeeper/conf',
-    packages  => $packages,
-    service_name => $service_name,
+  $kafka_broker_id = extract_id($kafka_hostnames, $::hostname)
+  file_line { 'set kafka broker id':
+    path => '/usr/share/kafka/config/server.properties',
+    line => "broker.id=${kafka_broker_id}",
+    match   => "^broker.id=.*$",
   }
 }

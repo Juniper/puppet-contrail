@@ -10,10 +10,11 @@
 #
 class contrail::keystone (
   $keystone_config = {},
-) {
+) 
+{
 
   validate_hash($keystone_config)
-
-  create_resources('contrail_keystone_config', $keystone_config)
+  $defaults = { 'path' => '/etc/contrail/contrail-keystone-auth.conf' }
+  create_ini_settings($keystone_config, $defaults)
 
 }

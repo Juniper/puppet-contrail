@@ -7,15 +7,15 @@
 # [*package_name*]
 #   (optional) Package name for database
 #
-class contrail::database::service {
+class contrail::analyticsdatabase::service {
 
   service {'contrail-database' :
     ensure => running,
     enable => true,
   }
   service {'supervisor-database' :
-    ensure => stopped,
-    enable => false,
+    ensure => running,
+    enable => true,
   }
 
 }

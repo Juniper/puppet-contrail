@@ -52,20 +52,24 @@
 #   (optional) Operation to run (add|del)
 #   Defaults to 'add'
 #
-class contrail::control::provision_linklocal (
+class contrail::config::provision_linklocal (
   $api_address                = '127.0.0.1',
   $api_port                   = 8082,
-  $linklocal_service_name     = 'metadata',
-  $linklocal_service_ip       = '169.254.169.254',
-  $linklocal_service_port     = 80,
   $ipfabric_service_ip        = '127.0.0.1',
   $ipfabric_service_port      = 8775,
   $keystone_admin_user        = 'admin',
   $keystone_admin_password    = 'password',
   $keystone_admin_tenant_name = 'admin',
+  $linklocal_service_name     = 'metadata',
+  $linklocal_service_ip       = '169.254.169.254',
+  $linklocal_service_port     = 80,
   $oper                       = 'add',
 ) {
 
+  #exec { "link local deploy wait for contrail config become available" :
+  #  path => '/usr/bin',
+  #  command => "/usr/bin/wget --spider --tries 150 --waitretry=2 --retry-connrefused http://${api_address}:8082",
+  #} ->
   exec { "provision_linklocal.py ${api_address}" :
     path => '/usr/bin',
     command => "python /opt/contrail/utils/provision_linklocal.py \
@@ -80,6 +84,8 @@ class contrail::control::provision_linklocal (
                  --admin_password ${keystone_admin_password} \
                  --admin_tenant ${keystone_admin_tenant_name} \
                  --oper ${oper}",
+    tries => 100,
+    try_sleep => 3,
   }
 
 }

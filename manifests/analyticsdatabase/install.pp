@@ -7,7 +7,7 @@
 # [*package_name*]
 #   (optional) Package name for database
 #
-class contrail::database::install (
+class contrail::analyticsdatabase::install (
 ) {
 
   package { 'wget' :

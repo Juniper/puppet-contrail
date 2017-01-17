@@ -8,10 +8,9 @@
 #   (optional) Package name for control
 #
 class contrail::control::install (
-  $package_name = $contrail::control::package_name,
 ) {
 
-  package { $package_name :
+  package { 'contrail-openstack-control' :
     ensure => installed,
   }
 
