@@ -77,9 +77,9 @@ class contrail::vrouter::config (
   include ::contrail::service_token
 
   $ip_to_steal = getvar(regsubst("ipaddress_${compute_device}", '[.-]', '_', 'G'))
-  $control_network_dev = { 
-    'NETWORKS/control_network_ip' => { value => ${ip_to_steal} },
-    'VIRTUAL-HOST-INTERFACE/ip'   => { value => "${ip_to_steal}/{$mask}" }
+  $control_network_dev = {
+    'NETWORKS/control_network_ip' => { value => "${ip_to_steal}" },
+    'VIRTUAL-HOST-INTERFACE/ip'   => { value => "${ip_to_steal}/${mask}" }
   }
   $new_vrouter_agent_config = merge($vrouter_agent_config, $control_network_dev)
 
@@ -91,6 +91,11 @@ class contrail::vrouter::config (
   file { '/etc/contrail/agent_param' :
     ensure  => file,
     content => template('contrail/vrouter/agent_param.erb'),
+  }
+
+  file { '/etc/contrail/selinux-contrail-qemu.te' :
+    ensure  => file,
+    content => template('contrail/vrouter/selinux-contrail-qemu.erb')
   }
 
   file { '/etc/contrail/default_pmac' :
@@ -110,15 +115,30 @@ class contrail::vrouter::config (
     path      => [ '/usr/bin', '/usr/sbin', '/bin', '/sbin', ],
     command   => "python /opt/contrail/utils/update_dev_net_config_files.py \
                    --vhost_ip ${ip_to_steal} \
+                   --multi_net \
                    --dev ${device} \
-                   --compute_dev ${device} \
+                   --compute_dev ${compute_device} \
                    --netmask ${netmask} \
                    --gateway ${gateway} \
                    --cidr ${vhost_ip}/${mask} \
-                   --mac ${macaddr}",
-    creates   => '/etc/sysconfig/network-scripts/ifcfg-vhost0',
+                   --mac ${macaddr}; \
+                  systemctl stop supervisor-vrouter; \
+                  rmmod vrouter; \
+                  ifdown ${compute_device}; \
+                  ifup ${compute_device}; \
+                  systemctl start supervisor-vrouter",
     subscribe => Anchor['vrouter::config::begin'],
     notify    => Anchor['vrouter::config::end'],
+    logoutput => 'on_failure',
+  } ~>
+  exec { 'update-selinux-qemu' :
+    path        => [ '/usr/bin', '/usr/sbin', '/bin', '/sbin', ],
+    command     => "checkmodule -M -m -o /etc/contrail/selinux-contrail-qemu.mod /etc/contrail/selinux-contrail-qemu.te; \
+                    semodule_package -m /etc/contrail/selinux-contrail-qemu.mod  -o /etc/contrail/selinux-contrail-qemu.pp; \
+                    semodule -i /etc/contrail/selinux-contrail-qemu.pp",
+    creates     => "/etc/contrail/selinux-contrail-qemu.pp",
+    subscribe   => File['/etc/contrail/selinux-contrail-qemu.te'],
+    logoutput   => 'on_failure',
   } ~>
   exec { 'backup-eth-ifcfg':
     path        => [ '/usr/bin', '/usr/sbin', '/bin', '/sbin', ],
@@ -127,8 +147,7 @@ class contrail::vrouter::config (
     creates     => "/etc/sysconfig/network-scripts/ifcfg-${compute_device}.contrailsave",
     logoutput   => 'on_failure',
     refreshonly => true,
-  } 
-
+  }
   exec { 'restore-eth-ifcfg':
     path      => [ '/usr/bin', '/usr/sbin', '/bin', '/sbin', ],
     command   => "cp /etc/sysconfig/network-scripts/ifcfg-${compute_device}.contrailsave /etc/sysconfig/network-scripts/ifcfg-${compute_device}",
@@ -138,14 +157,16 @@ class contrail::vrouter::config (
     logoutput => 'on_failure',
     subscribe => Anchor['vrouter::config::begin'],
     notify    => Anchor['vrouter::config::end'],
-  } 
+  }
 
   Service<| title == 'supervisor-vrouter' |> {
     restart => "systemctl stop supervisor-vrouter; \
                 rmmod vrouter; \
                 ifdown ${compute_device}; \
                 ifup ${compute_device}; \
-                systemctl start supervisor-vrouter",
+                systemctl start supervisor-vrouter; \
+                systemctl restart libvirtd; \
+                systemctl restart openstack-nova-compute",
     stop    => "systemctl stop supervisor-vrouter; \
                 rmmod vrouter;", #TODO: not sure if should ifdown
   }

@@ -40,7 +40,7 @@ class contrail::vrouter::provision_vrouter (
   $api_address                = '127.0.0.1',
   $api_port                   = 8082,
   $node_address               = $::ipaddress,
-  $node_name                  = $::hostname,
+  $node_name                  = $::fqdn,
   $keystone_admin_user        = 'admin',
   $keystone_admin_password    = 'password',
   $keystone_admin_tenant_name = 'admin',
