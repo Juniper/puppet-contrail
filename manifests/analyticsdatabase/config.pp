@@ -21,8 +21,26 @@ class contrail::analyticsdatabase::config (
   $zookeeper_server_ips    = hiera('contrail_database_node_ips'),
 ) {
   $zk_server_ip_2181 = join([join($zookeeper_server_ips, ':2181,'),":2181"],'')
+  $container_analyticsdb_config    = {
+    'GLOBAL' => {
+      'enable_webui_service'   => 'True',
+      #'analyticsdb_list'       => "${api_config['DEFAULTS']['cassandra_server_list']}",
+      'analyticsdb_list'       => "${hiera('contrail_analytics_database_node_ips')}",
+      'enable_control_service' => 'True',
+      'config_server_list'     => "${hiera('contrail_config_node_ips')}",
+      'analytics_ip'           => "${hiera('public_virtual_ip')}",
+      'controller_list'        => "${hiera('contrail_control_node_ips')}",
+      'analytics_list'         => "${hiera('contrail_analytics_node_ips')}",
+      'compute_list'           => "${hiera('contrail_vrouter_node_ips')}",
+      'enable_config_service'  => 'True',
+      'cloud_orchestrator'     => 'kubernetes',
+      'controller_ip'          => "${hiera('public_virtual_ip')}",
+    },
+  }
+  validate_hash($container_analyticsdb_config)
   validate_hash($database_nodemgr_config)
   validate_hash($vnc_api_lib_config)
+  $contrail_container_analyticsdb_config = { 'path' => '/etc/contrailctl/analyticsdb.conf' }
   $contrail_database_nodemgr_config = { 'path' => '/etc/contrail/contrail-database-nodemgr.conf' }
   $contrail_vnc_api_lib_config = { 'path' => '/etc/contrail/vnc_api_lib.ini' }
   $cassandra_seeds_list = $cassandra_servers[0,2]
@@ -34,6 +52,7 @@ class contrail::analyticsdatabase::config (
     $kafka_replication = '1'
   }
 
+  create_ini_settings($container_analyticsdb_config, $contrail_container_analyticsdb_config)
   create_ini_settings($database_nodemgr_config, $contrail_database_nodemgr_config)
   create_ini_settings($vnc_api_lib_config, $contrail_vnc_api_lib_config)
   validate_ipv4_address($cassandra_ip)

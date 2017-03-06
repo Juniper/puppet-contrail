@@ -52,9 +52,30 @@ class contrail::config::config (
   file { '/etc/contrail/contrail-keystone-auth.conf':
     ensure => file,
   }
+
+  $container_api_config    = {
+    'GLOBAL' => {
+      'enable_webui_service'   => 'True',
+      'analyticsdb_list'       => "${hiera('contrail_analytics_database_node_ips')}",
+      'enable_control_service' => 'True',
+      'config_server_list'     => "${hiera('contrail_config_node_ips')}",
+      'analytics_ip'           => "${hiera('public_virtual_ip')}",
+      'controller_list'        => "${hiera('contrail_control_node_ips')}",
+      'analytics_list'         => "${hiera('contrail_analytics_node_ips')}",
+      'compute_list'           => "${hiera('contrail_vrouter_node_ips')}",
+      'enable_config_service'  => 'True',
+      'cloud_orchestrator'     => 'kubernetes',
+      'controller_ip'          => "${hiera('public_virtual_ip')}",
+    },
+    'WEBUI' => {
+      'http_listen_port'      => '8085'
+    },
+  }
+
   validate_hash($api_config)
   validate_hash($alarm_gen_config)
   validate_hash($config_nodemgr_config)
+  validate_hash($container_api_config)
   validate_hash($device_manager_config)
   validate_hash($discovery_config)
   validate_hash($keystone_config)
@@ -67,6 +88,7 @@ class contrail::config::config (
   $contrail_api_config = { 'path' => '/etc/contrail/contrail-api.conf' }
   $contrail_alarm_gen_config = { 'path' => '/etc/contrail/contrail-alarm-gen.conf' }
   $contrail_config_nodemgr_config = { 'path' => '/etc/contrail/contrail-config-nodemgr.conf' }
+  $contrail_container_api_config = { 'path' => '/etc/contrailctl/controller.conf' }
   $contrail_device_manager_config = { 'path' => '/etc/contrail/contrail-device-manager.conf' }
   $contrail_discovery_config = { 'path' => '/etc/contrail/contrail-discovery.conf' }
   $contrail_keystone_config = { 'path' => '/etc/contrail/contrail-keystone-auth.conf' }
@@ -75,6 +97,7 @@ class contrail::config::config (
   $contrail_vnc_api_lib_config = { 'path' => '/etc/contrail/vnc_api_lib.ini' }
 
   create_ini_settings($api_config, $contrail_api_config)
+  create_ini_settings($container_api_config, $contrail_api_config_new)
   create_ini_settings($alarm_gen_config, $contrail_alarm_gen_config)
   create_ini_settings($config_nodemgr_config, $contrail_config_nodemgr_config)
   create_ini_settings($device_manager_config, $contrail_device_manager_config)
