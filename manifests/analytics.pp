@@ -4,11 +4,21 @@
 #
 # === Parameters:
 #
+# [*container_name*]
+#   (optional) Container name to run,
+# [*container_url*]
+#   Mandatory for container based deployment
+#   URL for downloading container
+# [*container_tag*]
+#   (optional) Container tag to be pullled from registry,
 # [*package_name*]
 #   (optional) Package name for analytics
-#
+
 class contrail::analytics (
-  $package_name = $contrail::params::analytics_package_name,
+  $container_image          = $contrail::params::analytics_container_image,
+  $container_name           = $contrail::params::analytics_container_name,
+  $container_url            = $contrail::params::container_url,
+  $package_name             = $contrail::params::analytics_package_name,
   $alarm_gen_config,
   $analytics_api_config,
   $analytics_nodemgr_config,
@@ -22,8 +32,12 @@ class contrail::analytics (
 ) inherits contrail::params {
 
   anchor {'contrail::analytics::start': } ->
-  class {'::contrail::analytics::install': } ->
-  class {'::contrail::analytics::config': 
+  class {'::contrail::analytics::install':
+    container_image          => $container_image,
+    container_name           => $container_name,
+    container_url            => $container_url,
+  } ->
+  class {'::contrail::analytics::config':
     alarm_gen_config         => $alarm_gen_config,
     analytics_api_config     => $analytics_api_config,
     analytics_nodemgr_config => $analytics_nodemgr_config,
@@ -35,7 +49,8 @@ class contrail::analytics (
     topology_config          => $topology_config,
     vnc_api_lib_config       => $vnc_api_lib_config,
   } ~>
-  class {'::contrail::analytics::service': }
+  class {'::contrail::analytics::service':
+    container_image          => $container_image,
+  }
   anchor {'contrail::analytics::end': }
-  
 }
