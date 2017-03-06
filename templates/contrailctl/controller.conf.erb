@@ -1,0 +1,396 @@
+[GLOBAL]
+# All global configurations which would affect multiple sections or globally
+# applicable configurations would be coming here.
+#
+
+# Default log_level
+# log_level = SYS_NOTICE
+
+# cloud_orchestrator - what cloud orchestrator is being used. Valid options:
+#  kubernetes, openstack, mesos
+# cloud_orchestrator = kubernetes
+<% if defined?(@cloud_orchestrator) && @cloud_orchestrator != "" %>
+cloud_orchestrator = <%= @cloud_orchestrator %>
+<% end -%>
+
+# hosts_entries: (OPTIONAL) a dict in form of {name1: 1.1.1.1, name2: 1.1.1.2}
+# In multi-controller systems, all hosts in the cluster should be reachable
+# using its own hostname which is requirement for rabbitmq, so for that /etc/hosts
+# entries are required, unless there is an external dns infrastructure to support it
+# Alternatively one can write /etc/hosts entries on the host before starting
+# the container, in which case container will take those entries.
+# hosts_entries = {"host1": "1.1.1.1", "host2": "1.1.1.2"}
+
+# external_lb - Flag to identify the whether the loadbalancer is internaly
+# hosted in the lb container or managed externally.
+# Based on which the listen port of the contrail-api will be decided.
+# Default is False(Internally hosted in lb container)
+#
+# external_lb = False
+<% if defined?(@external_lb) && @external_lb != "" %>
+external_lb = <%= @external_lb %>
+<% end -%>
+
+# controller_nodes - Comma separated list of controller server IP
+# addresses - this will be used to configure rabbitmq, zookeeper,
+# cassandra servers in various contrail service configurations and configure
+# load balancer for variuos contrail services
+# that needed to be loadbalanced
+# controller_nodes = 127.0.0.1
+controller_nodes = <%= @controller_nodes %>
+
+# controller_ip - An IP address using which one can connect to all public
+# services within controller container. This can be
+# a virtual IP handled by load balancer in case of multi-node controllers.
+# This will be configured in various contrail
+# services configurations to connect to other set of services
+# controller_ip = 127.0.0.1
+
+# config_ip - IP Address to connect config api. Usually this is same as controller_ip
+# and that is the default, but in case if you have set of controllers without configs
+# then this ip can be different.
+# config_ip =  127.0.0.1
+
+# ceph_controller_nodes - Comma seperated list of ceph controller server IP addresses - this will be used to serve ceph rest api request
+# ceph_controller_nodes = 127.0.0.1
+<% if defined?(@ceph_controller_nodes) && @ceph_controller_nodes != "" %>
+ceph_controller_nodes = <%= @ceph_controller_nodes %>
+<% end -%>
+
+
+# analytics_nodes - Comma separated list of analytics server IP addresses
+# analytics_nodes = 127.0.0.1
+analytics_nodes = <%= @analytics_nodes %>
+
+# external servers are those common services like zookeeper, rabbitmq, cassandra
+# which are configured and managed external to contrail cluster and given
+# to contrail services to use them. In this case those services will not be
+# deployed in contrail controller container. Instead the contrail services
+# are configured to use those external services. Also none of our code will
+# try to deploy/configure/manage any of the external services
+# external_rabbitmq_servers, external_zookeeper_servers,
+# external_cassandra_servers - Comma separated list of rabbitmq, zookeeper,
+# and cassandra respectively.
+# Example external_zookeeper_servers = 10.0.0.1,10.0.0.2
+# external_rabbitmq_servers =
+# external_zookeeper_servers =
+# external_configdb_servers =
+<% if defined?(@external_rabbitmq_servers) && @external_rabbitmq_servers != "" %>
+external_rabbitmq_servers = <%= @external_rabbitmq_servers %>
+<% end -%>
+<% if defined?(@external_zookeeper_servers) && @external_zookeeper_servers != "" %>
+external_zookeeper_servers = <%= @external_zookeeper_servers %>
+<% end -%>
+<% if defined?(@external_configdb_servers) && @external_configdb_servers != "" %>
+external_configdb_servers = <%= @external_configdb_servers %>
+<% end -%>
+<% if defined?(@external_cassandra_servers) && @external_cassandra_servers != "" %>
+external_cassandra_servers = <%= @external_cassandra_servers %>
+<% end -%>
+
+# config db's username password, defaultstp cassandra/cassandra
+# configdb_cassandra_user = cassandra
+# configdb_cassandra_password = cassandra
+<% if defined?(@configdb_cassandra_user) && @configdb_cassandra_user != "" %>
+configdb_cassandra_user = <%= @configdb_cassandra_user %>
+<% end -%>
+<% if defined?(@configdb_cassandra_password) && @configdb_cassandra_password != "" %>
+configdb_cassandra_password = <%= @configdb_cassandra_password %>
+<% end -%>
+
+
+# controller container can be running only with specific component like control
+# config or webui or combination of them enable_config_service,
+# enable_control_service, enable_webui_service will make those services enabled
+# or disabled.
+# By default all services are enabled.
+# enable_config_service = True
+# enable_control_service = True
+# enable_webui_service = True
+
+# analyticsdb_nodes - Comma separated list of analyticsdb server IP
+# addresses - this will be used to configure cassandra, and kafka servers
+# in various contrail service configurations.
+# This should be list of IP addresses where cassandra and kafka listening
+# analyticsdb_nodes = 127.0.0.1
+analyticsdb_nodes = <%= @analyticsdb_nodes %>
+
+# While making config component optional within controller container, it fails
+# the assumption that all nodes in controllers has config running and thus
+# need to set another optional entry to be configured in case config is not
+# running on all controller nodes
+# config_nodes = [""] # A list of ips that running config
+
+# config_seeds is to support adding new nodes to existing cluster, in
+# which case config_seeds is the list of existing servers in the cluster
+# and this list will be used for various clusters like rabbitmq, cassandra
+# to join new nodes to them
+# config_seeds = 12.0.0.1
+
+<% if defined?(@ssl_enabled) %>
+# Enable/Disable ssl for sandesh connection
+# sandesh_ssl_enable = False
+sandesh_ssl_enable = <%= @ssl_enabled %>
+
+# Enable/Disable ssl for introspect connection
+# introspect_ssl_enable = False
+introspect_ssl_enable = <%= @ssl_enabled %>
+
+# xmpp_auth_enable and xmpp_dns_auth_enable are two flags used to configure
+# contrail-control and contrail-dns services to use SSL certs to communicate
+# with the vrouter agent
+xmpp_auth_enable = <%= @ssl_enabled %>
+xmpp_dns_auth_enable = <%= @ssl_enabled %>
+
+<% end -%>
+
+# IP/Port for metadata server
+# neutron_metadata_ip = 1.2.3.4
+# neutron_metadata_port = 8775
+<% if defined?(@neutron_metadata_ip) && @neutron_metadata_ip != ""  %>
+neutron_metadata_ip = <%= @neutron_metadata_ip %>
+<% end -%>
+
+#
+# [CONTROLLER] section will have any global configuration for controller container
+# Any configuration here will be passed directly to contrial-ansible-internal
+# code without any changes
+#
+
+[CONTROLLER]
+# encapsulation priority. Default is MPLSoUDP,MPLSoGRE,VXLAN
+# encap_priority = MPLSoUDP,MPLSoGRE,VXLAN
+
+# external_routers_list - dictionary of external, physical routers in form of {name1: ip1, name2: ip2}
+# external_routers_list = {'r1': '192.168.0.1', 'r2': '192.168.0.2', 'r3': '192.168.0.3'}
+
+# bgp_asn - asn of control node
+# bgp_asn = 64512
+
+# flow_export_rate - flow export rate to the collector
+# flow_export_rate = 10
+
+<% if defined?(@cloud_orchestrator) && @cloud_orchestrator == "openstack" %>
+# [KEYSTONE] - Section to get informtion about the keystone to be used by contrail,
+# Required only when orchestration is 'openstack' and keystone is managed
+# externally out of ansible.
+#
+[KEYSTONE]
+# version - Version of keystone to be used.
+# version = v2.0
+
+# ip - Ip address of the host running keystone
+# ip = 127.0.0.1
+ip = <%= @auth_host %>
+
+# admin_port - Keystone admin port in which the keystone is listening.
+# admin_port = 35357
+admin_port = <%= @admin_port %>
+
+# public_port - Keystone public port in which the keystone is listening.
+# public_port = 5000
+public_port = <%= @auth_port_public %>
+
+# auth_protocol -  Protocol used by keystone(http/https)
+# auth_protocol = http
+auth_protocol = <%= @auth_protocol %>
+
+# admin_user - Name of the admin user in keystone.
+# admin_user = admin
+admin_user = <%= @admin_user %>
+
+# admin_password - Password of the keystone admin user.
+# admin_password = admin
+admin_password = <%= @admin_password %>
+
+# admin_tenant - keystone admin tenant's name.
+# admin_tenant = admin
+admin_tenant = <%= @admin_tenant %>
+
+#insecure - Whether to validate Keystone SSL certificate.
+#insecure = False
+<% if defined?(@insecure) %>
+insecure = <%= @insecure %>
+<% end -%>
+
+<% if @auth_protocol == "https" %>
+#certfile - Keystone SSL certificate to install and use for API ports
+#certfile = /etc/contrailctl/ssl/server.pem
+<% if defined?(@certfile) && @certfile != "" %>
+certfile = <%= @certfile %>
+<% end -%>
+
+#keyfile - Keystone SSL key to use with certificate.
+#keyfile = /etc/contrailctl/ssl/server-privatekey.pem
+<% if defined?(@keyfile) && @keyfile != "" %>
+keyfile = <%= @keyfile %>
+<% end -%>
+
+#cafile - Keystone SSL CA to use with the certificate and key provided
+#Required only if using privately signed certfile and keyfile
+#cafile = /etc/contrailctl/ssl/ca-cert.pem
+<% if defined?(@cafile) && @cafile != "" %>
+cafile = <%= @cafile %>
+<% end -%>
+
+<% end -%>
+
+<% end -%>
+
+[CONTROL]
+# BGP port number
+# bgp_port=179
+
+# Introspect port for debugging
+# introspect_port = 8083
+
+# xmpp server port
+# xmpp_server_port=5269
+
+# Log file and log level
+# log_file=/var/log/contrail/contrail-control.log
+# log_level=SYS_NOTICE
+
+[DNS]
+# named log file
+# named_log_file=/var/log/contrail/contrail-named.log
+
+# Introspect port for debug
+# introspect_port=8092
+
+# DNS server port
+# dns_server_port=53
+
+# Log file and log_level
+# log_file=/var/log/contrail/contrail-dns.log
+# log_level=SYS_NOTICE
+
+[CASSANDRA]
+# Directory to store commitlogs. In case of any high performance disk mounted,
+# it is prefered to use that for this
+# commitlog_dir = /var/lib/cassandra/commitlog
+#
+# The directory location where table key and row caches are stored
+# saved_caches_dir = /var/lib/cassandra/saved_caches
+#
+# data_dirs - A list of directory location where table data is stored (in SSTables).
+# This is setup as list representation. Cassandra distributes data evenly across the
+# location, subject to the granularity of the configured compaction strategy.
+# data_dirs = ["/var/lib/cassandra/data"]
+#
+# JAVA memory configurations
+# java_max_heap_size = 512M
+# java_max_heap_newsize = 100M
+
+
+[API]
+# log = /var/log/contrail/contrail-api.log
+
+# log_level = SYS_NOTICE
+
+# Enable optimizations to list resources. Be careful, resources created on
+# release under R1.05 does not support that optimization (especially for port)
+# list_optimization_enabled = True
+
+# listen_port = 8082
+# listen_address = 0.0.0.0
+
+# Authentication mode. The effects of setting this are:
+# 1. no-auth: authentictaion is disabled
+# 2. cloud-admin: Only admin is allowed access (default)
+# 3. rbac: role based access control
+
+# aaa_mode = "cloud-admin"
+<% if defined?(@aaa_mode) && @aaa_mode != "" %>
+aaa_mode = <%= @aaa_mode %>
+<% end -%>
+
+<% if defined?(@aaa_mode) && @aaa_mode == "cloud-admin" %>
+# Other RBAC related knobs
+# cloud_admin_role = "admin"
+# global_read_only_role = None
+<% if defined?(@cloud_admin_role) && @cloud_admin_role != "" %>
+cloud_admin_role = <%= @cloud_admin_role %>
+<% end -%>
+<% if defined?(@global_read_only_role) && @global_read_only_role != "" %>
+global_read_only_role = <%= @global_read_only_role %>
+<% end -%>
+<% end -%>
+
+
+[ANALYTICS_API]
+# Authentication mode. The effects of setting this are:
+# 1. no-auth: authentictaion is disabled
+# 2. cloud-admin: Only admin is allowed access (default)
+# 3. rbac: role based access control
+
+# aaa_mode = "cloud-admin"
+<% if defined?(@analytics_aaa_mode) && @analytics_aaa_mode != "" %>
+aaa_mode = <%= @analytics_aaa_mode %>
+<% end -%>
+
+
+[SCHEMA]
+# log = /var/log/contrail/contrail-schema.log
+
+# log_level = SYS_NOTICE
+
+[DEVICE_MANAGER]
+# log = /var/log/contrail/contrail-device-manager.log
+# log_level = SYS_NOTICE
+
+[SVC_MONITOR]
+
+# Log file and log level
+# log = /var/log/contrail/contrail-svc-monitor.log
+# log_level = SYS_NOTICE
+
+[WEBUI]
+# http_listen_port = 8080
+<% if defined?(@web_http_listen_port) && @web_http_listen_port != "" %>
+http_listen_port = <%= @web_http_listen_port %>
+<% end -%>
+# https_listen_port = 8143
+<% if defined?(@web_https_listen_port) && @web_https_listen_port != "" %>
+https_listen_port = <%= @web_https_listen_port %>
+<% end -%>
+# webui_storage_enable = False
+# nova_api_ip = 1.2.3.4
+<% if defined?(@nova_api_ip) && @nova_api_ip != "" %>
+nova_api_ip = <%= @nova_api_ip %>
+<% end -%>
+# glance_api_ip = 4.3.2.1
+<% if defined?(@glance_api_ip) && @glance_api_ip != "" %>
+glance_api_ip = <%= @glance_api_ip %>
+<% end -%>
+# network_manager_ip = 2.4.8.16
+# enable_underlay = False
+# enable_mx = False
+# enable_udd = False
+# service_endpoint_from_config = True
+# network_manager_auth_protocol = http
+# image_manager_auth_protocol = http
+# compute_manager_auth_protocol = http
+# server_options_key_file = /usr/src/contrail/contrail-web-core/keys/cs-key.pem
+# server_options_cert_file = /usr/src/contrail/contrail-web-core/keys/cs-cert.pem
+
+[RABBITMQ]
+# All rabbitmq releated parameters used to
+# provision rabbitmq in controller contianer
+#
+# vhost = '/'
+<% if defined?(@rabbitmq_vhost) && @rabbitmq_vhost != "" %>
+vhost = <%= @rabbitmq_vhost %>
+<% end -%>
+# user = guest
+<% if defined?(@rabbitmq_user) && @rabbitmq_user != "" %>
+user = <%= @rabbitmq_user %>
+<% end -%>
+# password = guest
+<% if defined?(@rabbitmq_password) && @rabbitmq_password != "" %>
+password = <%= @rabbitmq_password %>
+<% end -%>
+#
+# owner = rabbitmq
+# group = rabbitmq
+
