@@ -1,86 +1,44 @@
 # Puppet-contrail
 
-[![Build Status](https://travis-ci.org/redhat-cip/puppet-contrail.png?branch=master)](https://travis-ci.org/redhat-cip/puppet-contrail)
-[![Puppet Forge](http://img.shields.io/puppetforge/v/eNovance/contrail.svg)](https://forge.puppetlabs.com/eNovance/contrail)
 [![License](http://img.shields.io/:license-apache2-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
 #### Table of Contents
 
-1. [Overview - What is the puppet-contrail module?](#overview)
-2. [Module Description - What does the module do?](#module-description)
-3. [Setup - The basics of getting started with puppet-contrail](#setup)
-4. [Implementation - An under-the-hood peek at what the module is doing](#implementation)
-5. [Limitations - OS compatibility, etc.](#limitations)
-6. [Development - Guide for contributing to the module](#development)
-7. [Contributors - Those with commits](#contributors)
-
-Overview
---------
-
-A [Puppet Module](http://docs.puppetlabs.com/learning/modules1.html#modules) is a collection of related content that can be used to model the configuration of a discrete service.
+1. [Module Description - What does the module do?](#module-description)
+2. [Setup OpenStack Cloud with Contrail Networking](#setup-openstack-cloud-with-contrail-networking)
 
 Module Description
 ------------------
 
-The puppet-contrail module is a thorough attempt to make Puppet capable of managing the entirety of OpenContrail.  This includes manifests to provision region specific endpoint and database connections. Types are shipped as part of the puppet-contrail module to assist in manipulation of configuration files.
+The puppet-contrail module is a thorough attempt to make Puppet capable of managing the entirety of OpenContrail. The current implementation is limited to support Contrail v4.0 and to be used together with [RDO](https://www.rdoproject.org/), [Contral TripleO Heat Templates](https://github.com/Juniper/contrail-tripleo-heat-templates) and [Contrail TripleO Puppet](https://github.com/Juniper/contrail-tripleo-puppet).
 
-Setup
------
+Setup OpenStack Cloud with Contrail Networking
+----------------------------------------------
 
-**What the puppet-contrail module affects**
+### The overall instruction is described [here](https://github.com/Juniper/contrail-tripleo-heat-templates/blob/master/README.md). Follow it with the changes below:
 
-* puppet-contrail, the Juniper SDN service.
+* If you wnat to use [CentOS based images](https://cloud.centos.org/centos/7/images/) you will have to build own overcloud images for Compute nodes with Trove service excluded. This is because Trove depends on python2-xml2dict package that conflicts with the custom Contrail package xmltodict-0.7.0-0contrail.el7.noarch.rpm.
 
-### Installing puppet-contrail
-
-    example% puppet module install enovance/contrail
-
-### Beginning with puppet-contrail
-
-To utilize the puppet-contrail module's functionality you will need to declare multiple resources.  The following is a modified excerpt from the [spinalstack module](https://github.com/stackforge/puppet-openstack-cloud).  This is not an exhaustive list of all the components needed, we recommend you consult and understand the [spinalstack module](https://github.com/stackforge/puppet-openstack-cloud) and the [core openstack](http://docs.openstack.org) documentation.
-
-**Define a puppet-contrail node**
-
-```puppet
-class { 'contrail': }
+* At the step 'Undercloud configuration / get contrail' download Contrail v4.0 install packages and docker containers
+(there is an assumption that you have acces to Juniper build server 10.84.5.120)
+```
+wget http://10.84.5.120/github-build/R4.0/LATEST/redhat70/newton/contrail-install-packages-4.0.0.0-20~newton.el7.noarch.rpm
+sudo rpm -ivh contrail-install-packages-4.0.0.0-20~newton.el7.noarch.rpm
+sudo tar -zxvf /opt/contrail/contrail_packages/contrail_rpms.tgz -C /var/www/html/contrail
+wget http://10.84.5.120/github-build/R4.0/LATEST/redhat70/newton/contrail-docker-images_4.0.0.0-20.tgz
+sudo tar -zxvf contrail-docker-images_4.0.0.0-20.tgz -C /var/www/html/contrail/
 ```
 
-Implementation
---------------
-
-### puppet-contrail
-
-Puppet-contrail is a combination of Puppet manifest and ruby code to delivery configuration and extra functionality through types and providers.
-
-Limitations
-------------
-
-*
-
-Beaker-Rspec
-------------
-
-This module has beaker-rspec tests
-
-To run the tests on the default vagrant node:
-
-```shell
-bundle install
-bundle exec rake acceptance
+* At the step 'Configure overcloud / get puppet modules' use this puppet-contrail module.
+```
+mkdir -p ~/usr/share/openstack-puppet/modules
+git clone https://github.com/Juniper/contrail-tripleo-puppet -b stable/newton ~/usr/share/openstack-puppet/modules/tripleo
+git clone https://github.com/alexey-mr/puppet-contrail -b stable/newton ~/usr/share/openstack-puppet/modules/contrail
+tar czvf puppet-modules.tgz usr/
 ```
 
-For more information on writing and running beaker-rspec tests visit the documentation:
-
-* https://github.com/puppetlabs/beaker/wiki/How-to-Write-a-Beaker-Test-for-a-Module
-
-Development
------------
-
-Developer documentation for the entire puppet-openstack project.
-
-* https://wiki.openstack.org/wiki/Puppet-openstack#Developer_documentation
-
-Contributors
-------------
-
-* https://github.com/sbadia/puppet-contrail/graphs/contributors
+*  If you use CentOS based images add openstack-utils packet into Contrail rpm repo. It is needed since CentOS images don't have this packet installed but Contrail requires it.
+```
+sudo wget -P /var/www/html/contrail  http://mirror.comnet.uz/centos/7/cloud/x86_64/openstack-newton/common/openstack-utils-2017.1-1.el7.noarch.rpm
+sudo createrepo --update -v /var/www/html/contrail
+```
