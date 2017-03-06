@@ -1,0 +1,160 @@
+[GLOBAL]
+# All global configurations which would affect multiple sections or globally
+# applicable configurations would be coming here.
+#
+
+# Default log_level
+# log_level = SYS_NOTICE
+
+# cloud_orchestrator - what cloud orchestrator is being used. Valid options:
+#  kubernetes, openstack, mesos
+<% if defined?(@cloud_orchestrator) && @cloud_orchestrator != "" %>
+cloud_orchestrator = <%= @cloud_orchestrator %>
+<% end -%>
+
+# hosts_entries: (OPTIONAL) a dict in form of {name1: 1.1.1.1, name2: 1.1.1.2}
+# In multi-controller systems, all hosts in the cluster should be reachable
+# using its own hostname which is requirement for rabbitmq, so for that /etc/hosts
+# entries are required, unless there is an external dns infrastructure to support it
+# Alternatively one can write /etc/hosts entries on the host before starting
+# the container, in which case container will take those entries.
+# hosts_entries = {"host1": "1.1.1.1", "host2": "1.1.1.2"}
+
+# controller_ip - An IP address using which one can connect to all public
+# services within controller container. This can be a virtual IP handled by
+# load balancer in case of multi-node controllers. This will be configured
+# in various contrail services configurations to connect to other set of
+# services like discovery_server_ip.
+# controller_ip = 127.0.0.1
+#
+# controller_nodes - Comma separated list of controller server IP
+# addresses - this will be used to configure rabbitmq, zookeeper, cassandra
+# servers in various contrail service configurations and configure
+# load balancer for variuos contrail services that needed to be loadbalanced
+# controller_nodes = 127.0.0.1
+controller_nodes = <%= @controller_nodes %>
+
+#
+# analyticsdb_nodes - Comma separated list of analyticsdb server IP addresses.
+# IP Addresses on which cassandra is supposed to listen
+# analyticsdb_nodes = 192.168.0.10
+analyticsdb_nodes = <%= @analyticsdb_nodes %>
+
+# analytics_nodes - Comma separated list of analytics server IP addresses
+# analytics_nodes = 127.0.0.1
+analytics_nodes = <%= @analytics_nodes %>
+
+# analyticsdb_seed_list is to support adding new nodes to existing cluster, in
+# which case analyticsdb_seed_list is the list of existing servers in the cluster
+# and this list will be used for various clusters like cassandra
+# to join new nodes to them
+# analyticsdb_seed_list = ["12.0.0.1"]
+
+<% if defined?(@ssl_enabled) %>
+# Enable/Disable ssl for sandesh connection
+# sandesh_ssl_enable = False
+sandesh_ssl_enable = <%= @ssl_enabled %>
+
+# Enable/Disable ssl for introspect connection
+# introspect_ssl_enable = False
+introspect_ssl_enable = <%= @ssl_enabled %>
+
+xmpp_auth_enable = <%= @ssl_enabled %>
+xmpp_dns_auth_enable = <%= @ssl_enabled %>
+<% end -%>
+
+<% if defined?(@analyticsdb_cassandra_user) && @analyticsdb_cassandra_user != "" %>
+analyticsdb_cassandra_user = <%= @analyticsdb_cassandra_user %>
+<% end -%>
+<% if defined?(@analyticsdb_cassandra_password) && @analyticsdb_cassandra_password != "" %>
+analyticsdb_cassandra_password = <%= @analyticsdb_cassandra_password %>
+<% end -%>
+
+<% if defined?(@cloud_orchestrator) && @cloud_orchestrator == "openstack" %>
+# [KEYSTONE] - Section to get informtion about the keystone to be used by contrail,
+# Required only when orchestration is 'openstack' and keystone is managed
+# externally out of ansible.
+#
+[KEYSTONE]
+# version - Version of keystone to be used.
+# version = v2.0
+
+# ip - Ip address of the host running keystone
+# ip = 127.0.0.1
+ip = <%= @auth_host %>
+
+# admin_port - Keystone admin port in which the keystone is listening.
+# admin_port = 35357
+admin_port = <%= @admin_port %>
+
+# public_port - Keystone public port in which the keystone is listening.
+# public_port = 5000
+public_port = <%= @auth_port_public %>
+
+# auth_protocol -  Protocol used by keystone(http/https)
+# auth_protocol = http
+auth_protocol = <%= @auth_protocol %>
+
+# admin_user - Name of the admin user in keystone.
+# admin_user = admin
+admin_user = <%= @admin_user %>
+
+# admin_password - Password of the keystone admin user.
+# admin_password = admin
+admin_password = <%= @admin_password %>
+
+# admin_tenant - keystone admin tenant's name.
+# admin_tenant = admin
+admin_tenant = <%= @admin_tenant %>
+
+#insecure - Whether to validate Keystone SSL certificate.
+#insecure = False
+insecure = <%= @insecure %>
+
+<% if @auth_protocol == "https" %>
+#certfile - Keystone SSL certificate to install and use for API ports
+#certfile = /etc/contrailctl/ssl/server.pem
+<% if defined?(@certfile) && @certfile != "" %>
+certfile = <%= @certfile %>
+<% end -%>
+
+#keyfile - Keystone SSL key to use with certificate.
+#keyfile = /etc/contrailctl/ssl/server-privatekey.pem
+<% if defined?(@keyfile) && @keyfile != "" %>
+keyfile = <%= @keyfile %>
+<% end -%>
+
+#cafile - Keystone SSL CA to use with the certificate and key provided
+#Required only if using privately signed certfile and keyfile
+#cafile = /etc/contrailctl/ssl/ca-cert.pem
+<% if defined?(@cafile) && @cafile != "" %>
+cafile = <%= @cafile %>
+<% end -%>
+
+<% end -%>
+
+<% end -%>
+
+[CASSANDRA]
+# Cassandra version
+# version =  2.2
+# version_branch = 2.2
+#
+# Directory to store commitlogs. In case of any high performance disk mounted,
+# it is prefered to use that for this
+# commitlog_dir = /var/lib/cassandra/commitlog
+#
+# The directory location where table key and row caches are stored
+# saved_caches_dir = /var/lib/cassandra/saved_caches
+#
+# data_dirs - A list of directory location where table data is stored (in SSTables).
+# This is setup as list representation. Cassandra distributes data evenly across the
+# location, subject to the granularity of the configured compaction strategy.
+# data_dirs = ["/var/lib/cassandra/data"]
+#
+# listen_address - This must be an IP address - not 0.0.0.0
+# listen_address = 192.168.0.10 ; Default is first found IP address on the machine
+#
+# JAVA memory configurations
+# java_max_heap_size = 512M
+# java_max_heap_newsize = 100M
