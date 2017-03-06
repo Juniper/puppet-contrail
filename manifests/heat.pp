@@ -4,17 +4,22 @@
 #
 # === Parameters:
 #
+
 class contrail::heat (
   $heat_config,
 ) inherits contrail::params  {
 
-  anchor {'contrail::heat::start': } ->
-  class {'::contrail::heat::install': } ->
-  class {'::contrail::heat::config': 
-    heat_config => $heat_config,
+  if $version < 4 {
+    anchor {'contrail::heat::start': } ->
+    class {'::contrail::heat::install': } ->
+    class {'::contrail::heat::config':
+      heat_config => $heat_config,
+    }
+    #} ~>
+    #class {'::contrail::heat::service': }
+    anchor {'contrail::heat::end': }
+  } else {
+    notify { "Skip Contrail-Heat configuration in container based deploument": }
   }
-  #} ~>
-  #class {'::contrail::heat::service': }
-  anchor {'contrail::heat::end': }
 }
 

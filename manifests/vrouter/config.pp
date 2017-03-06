@@ -75,7 +75,7 @@ class contrail::vrouter::config (
   $vrouter_agent_config   = {},
   $vrouter_nodemgr_config = {},
   $vnc_api_lib_config     = {},
-) {
+) inherits contrail::params {
 
 #  include ::contrail::vnc_api
 #  include ::contrail::ctrl_details
@@ -85,19 +85,93 @@ class contrail::vrouter::config (
     ensure => file,
   }
 
-  validate_hash($vrouter_agent_config)
-  validate_hash($vrouter_nodemgr_config)
-  validate_hash($keystone_config)
+  if $version < 4 {
+    $keystone_cfg = $keystone_config
+    $agent_cfg    = $vrouter_agent_config
+    $nodemgr_cfg  = $vrouter_nodemgr_config
+    $vnc_api_cfg  = $vnc_api_lib_config
+  } else {
+    $keystone_cfg = undef
+    $_keystone_cfg = $keystone_config['KEYSTONE']
+    # TODO: read parameters from input paramerers
+    $_web_server = hiera('contrail_config_vip', hiera('internal_api_virtual_ip'))
+    $_web_port = hiera('contrail::api_port', 8082)
+    $_vnc_api_cfg_blobal = {
+      'global' => {
+        'WEB_SERVER'  => $_web_server,
+        'WEB_PORT'    => $_web_port,
+      }
+    }
+    if $_keystone_cfg and $_keystone_cfg['auth_host'] {
+      $_vnc_api_cfg_auth = {
+        'auth' => {
+          'AUTHN_TYPE'      => 'keystone',
+          'AUTHN_SERVER'    => $_keystone_cfg['auth_host'],
+          'AUTHN_PROTOCOL'  => $_keystone_cfg['auth_protocol'],
+          'AUTHN_PORT'      => $_keystone_cfg['auth_port'],
+          'insecure'        => $_keystone_cfg['insecure'],
+          'certfile'        => $_keystone_cfg['certfile'],
+          'cafile'          => $_keystone_cfg['cafile'],
+        }
+      }
+    } else {
+      $_vnc_api_cfg_auth = {
+        'auth' => {
+          'AUTHN_TYPE' => 'noauth',
+        }
+      }
+    }
+    $vnc_api_cfg = deep_merge($_vnc_api_cfg_blobal, $_vnc_api_cfg_auth)
 
-  $contrail_keystone_config = { 'path' => '/etc/contrail/contrail-keystone-auth.conf' }
+    $_analytics_nodes = join(suffix(hiera('contrail_analytics_node_ips'), ':8086'), ' ')
+    $nodemgr_cfg = {
+      'COLLECTOR' => {
+        'server_list' => $_analytics_nodes,
+      }
+    }
+
+    $_cfg_nodes = hiera('contrail_config_node_ips')
+    $_control_nodes = join(suffix($_cfg_nodes, ':5269'), ' ')
+    $_dns_nodes = join(suffix($_cfg_nodes, ':53'), ' ')
+    $_ssl_enabled = hiera('contrail_ssl_enabled', false)
+    $_agent_cfg = {
+      'CONTROL-NODE' => {
+        'servers' => $_control_nodes,
+      },
+      'DNS' => {
+        'servers' => $_dns_nodes,
+      },
+      'DEFAULT' => {
+        'collectors'                      => $_analytics_nodes,
+        'xmpp_auth_enable'                => $_ssl_enabled,
+        'xmpp_dns_auth_enable'            => $_ssl_enabled,
+
+      },
+      'SANDESH' => {
+        'introspect_ssl_enable'           => $_ssl_enabled,
+        'sandesh_ssl_enable'              => $_ssl_enabled,
+      }
+    }
+
+    $agent_cfg = deep_merge($vrouter_agent_config, $_agent_cfg)
+  }
+
+  validate_hash($agent_cfg)
+  validate_hash($nodemgr_cfg)
+  validate_hash($vnc_api_cfg)
+
   $contrail_vrouter_agent_config = { 'path' => '/etc/contrail/contrail-vrouter-agent.conf' }
   $contrail_vrouter_nodemgr_config = { 'path' => '/etc/contrail/contrail-vrouter-nodemgr.conf' }
   $contrail_vnc_api_lib_config = { 'path' => '/etc/contrail/vnc_api_lib.ini' }
 
-  create_ini_settings($keystone_config, $contrail_keystone_config)
-  create_ini_settings($vrouter_agent_config, $contrail_vrouter_agent_config)
-  create_ini_settings($vrouter_nodemgr_config, $contrail_vrouter_nodemgr_config)
-  create_ini_settings($vnc_api_lib_config, $contrail_vnc_api_lib_config)
+  if $keystone_cfg {
+    validate_hash($keystone_cfg)
+    $contrail_keystone_config = { 'path' => '/etc/contrail/contrail-keystone-auth.conf' }
+    create_ini_settings($keystone_cfg, $contrail_keystone_config)
+  }
+  create_ini_settings($agent_cfg, $contrail_vrouter_agent_config)
+  create_ini_settings($nodemgr_cfg, $contrail_vrouter_nodemgr_config)
+  create_ini_settings($vnc_api_cfg, $contrail_vnc_api_lib_config)
 
   if $step == 5 and !$is_tsn {
     file { '/nova_libvirt.patch' :
@@ -156,7 +230,7 @@ class contrail::vrouter::config (
     file { '/opt/contrail/utils/update_dev_net_config_files.py':
       ensure => file,
       source => '/usr/share/openstack-puppet/modules/contrail/files/vrouter/update_dev_net_config_files.py',
-    } -> 
+    } ->
     exec { '/bin/python /opt/contrail/utils/update_dev_net_config_files.py' :
       path => '/usr/bin',
       command => "/bin/python /opt/contrail/utils/update_dev_net_config_files.py \

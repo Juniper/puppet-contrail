@@ -1,0 +1,283 @@
+[GLOBAL]
+# All global configurations which would affect multiple sections or globally
+# applicable configurations would be coming here.
+
+# Default log_level
+# log_level = SYS_NOTICE
+
+# external_lb - Flag to identify the whether the loadbalancer is internaly
+# hosted in the lb container or it is externally managed. Based on which
+# the listen port of thecontrail-analytics-api will be decided.
+# Default is False (Internally hosted in lb container)
+#
+# external_lb = False
+<% if defined?(@external_lb) && @external_lb != "" %>
+external_lb = <%= @external_lb %>
+<% end -%>
+
+# cloud_orchestrator - what cloud orchestrator is being used. Valid options:
+#  kubernetes, openstack, mesos
+# cloud_orchestrator = kubernetes
+<% if defined?(@cloud_orchestrator) && @cloud_orchestrator != "" %>
+cloud_orchestrator = <%= @cloud_orchestrator %>
+<% end -%>
+
+# hosts_entries: (OPTIONAL) a dict in form of {name1: 1.1.1.1, name2: 1.1.1.2}
+# In multi-controller systems, all hosts in the cluster should be reachable
+# using its own hostname which is requirement for rabbitmq, so for that /etc/hosts
+# entries are required, unless there is an external dns infrastructure to support it
+# Alternatively one can write /etc/hosts entries on the host before starting
+# the container, in which case container will take those entries.
+# hosts_entries = {"host1": "1.1.1.1", "host2": "1.1.1.2"}
+
+# controller_nodes - Comma separated list of controller server IP addresses
+# - this will be used to configure rabbitmq, zookeeper, cassandra servers in
+# various contrail service configurations and configure load balancer for various
+# contrail services that needed to be loadbalanced
+# controller_nodes = 127.0.0.1
+controller_nodes = <%= @controller_nodes %>
+
+# analyticsdb_nodes - Comma separated list of analyticsdb server IP
+# addresses - this will be used to configure cassandra, and kafka servers
+# in various contrail service configurations.
+# This should be list of IP addresses where cassandra and kafka listening
+# analyticsdb_nodes = 127.0.0.1
+analyticsdb_nodes = <%= @analyticsdb_nodes %>
+
+# controller_ip - An IP address using which one can connect to all public
+# services within controller container. This can be a virtual IP handled by
+# load balancer in case of multi-node controllers. This will be configured
+# in various contrail services configurations to connect to other set of
+# services like discovery_server_ip.
+# controller_ip = 127.0.0.1
+
+# analytics_nodes - Comma separated list of analytics server IP addresses
+# analytics_nodes = 127.0.0.1
+analytics_nodes = <%= @analytics_nodes %>
+
+# external servers are those common services like zookeeper, rabbitmq, cassandra
+# which are configured and managed external to contrail cluster and given
+# to contrail services to use them. In this case those services will not be
+# deployed in contrail controller container. Instead the contrail services
+# are configured to use those external services. Also none of our code will
+# try to deploy/configure/manage any of the external services
+# external_rabbitmq_servers, external_zookeeper_servers,
+# external_cassandra_servers - Comma separated list of rabbitmq, zookeeper,
+# and cassandra respectively.
+# Example external_zookeeper_servers = 10.0.0.1,10.0.0.2
+# external_rabbitmq_servers =
+# external_zookeeper_servers =
+# external_configdb_servers =
+<% if defined?(@external_rabbitmq_servers) && @external_rabbitmq_servers != "" %>
+external_rabbitmq_servers = <%= @external_rabbitmq_servers %>
+<% end -%>
+<% if defined?(@external_zookeeper_servers) && @external_zookeeper_servers != "" %>
+external_zookeeper_servers = <%= @external_zookeeper_servers %>
+<% end -%>
+<% if defined?(@external_configdb_servers) %>
+external_configdb_servers = <%= @external_configdb_servers %>
+<% end -%>
+<% if defined?(@external_cassandra_servers) && @external_cassandra_servers != "" %>
+external_cassandra_servers = <%= @external_cassandra_servers %>
+<% end -%>
+
+# uve_partition_count - UVE data is partitioned to improve analytics performance,
+# this configuration set number of partitions
+# uve_partition_count = 30
+
+<% if defined?(@ssl_enabled) %>
+# Enable/Disable ssl for sandesh connection
+# sandesh_ssl_enable = False
+sandesh_ssl_enable = <%= @ssl_enabled %>
+
+# Enable/Disable ssl for introspect connection
+# introspect_ssl_enable = False
+introspect_ssl_enable = <%= @ssl_enabled %>
+
+# xmpp_auth_enable and xmpp_dns_auth_enable are two flags used to configure
+# contrail-control and contrail-dns services to use SSL certs to communicate
+# with the vrouter agent
+xmpp_auth_enable = <%= @ssl_enabled %>
+xmpp_dns_auth_enable = <%= @ssl_enabled %>
+
+<% end -%>
+
+<% if defined?(@analyticsdb_cassandra_user) && @analyticsdb_cassandra_user != "" %>
+analyticsdb_cassandra_user = <%= @analyticsdb_cassandra_user %>
+<% end -%>
+<% if defined?(@analyticsdb_cassandra_password) && @analyticsdb_cassandra_password != "" %>
+analyticsdb_cassandra_password = <%= @analyticsdb_cassandra_password %>
+<% end -%>
+
+# Redis password, default is None
+# redis_password = redis
+
+<% if defined?(@cloud_orchestrator) && @cloud_orchestrator == "openstack" %>
+# [KEYSTONE] - Section to get informtion about the keystone to be used by contrail,
+# Required only when orchestration is 'openstack' and keystone is managed
+# externally out of ansible.
+#
+[KEYSTONE]
+# version - Version of keystone to be used.
+# version = v2.0
+
+# ip - Ip address of the host running keystone
+# ip = 127.0.0.1
+ip = <%= @auth_host %>
+
+# admin_port - Keystone admin port in which the keystone is listening.
+# admin_port = 35357
+admin_port = <%= @admin_port %>
+
+# public_port - Keystone public port in which the keystone is listening.
+# public_port = 5000
+public_port = <%= @auth_port_public %>
+
+# auth_protocol -  Protocol used by keystone(http/https)
+# auth_protocol = http
+auth_protocol = <%= @auth_protocol %>
+
+# admin_user - Name of the admin user in keystone.
+# admin_user = admin
+admin_user = <%= @admin_user %>
+
+# admin_password - Password of the keystone admin user.
+# admin_password = admin
+admin_password = <%= @admin_password %>
+
+# admin_tenant - keystone admin tenant's name.
+# admin_tenant = admin
+admin_tenant = <%= @admin_tenant %>
+
+#insecure - Whether to validate Keystone SSL certificate.
+#insecure = False
+insecure = <%= @insecure %>
+
+<% if @auth_protocol == "https" %>
+#certfile - Keystone SSL certificate to install and use for API ports
+#certfile = /etc/contrailctl/ssl/server.pem
+<% if defined?(@certfile) && @certfile != "" %>
+certfile = <%= @certfile %>
+<% end -%>
+
+#keyfile - Keystone SSL key to use with certificate.
+#keyfile = /etc/contrailctl/ssl/server-privatekey.pem
+<% if defined?(@keyfile) && @keyfile != "" %>
+keyfile = <%= @keyfile %>
+<% end -%>
+
+#cafile - Keystone SSL CA to use with the certificate and key provided
+#Required only if using privately signed certfile and keyfile
+#cafile = /etc/contrailctl/ssl/ca-cert.pem
+<% if defined?(@cafile) && @cafile != "" %>
+cafile = <%= @cafile %>
+<% end -%>
+
+<% end -%>
+
+<% end -%>
+
+
+[ALARM_GEN]
+# Log file and log level
+# log = /var/log/contrail/contrail-alarm-gen.log
+# log_level = SYS_NOTICE
+#
+# Introspect port for debug
+# introspect_port = 5995
+
+[ANALYTICS_API]
+# Introspect port for debug
+# introspect_port = 8090
+#
+# Listen address and port
+# listen_port = 8081
+# listen_address = 0.0.0.0
+#
+# Log file and log_level
+# log_level = SYS_NOTICE
+# log = /var/log/contrail/contrail-analytics-api.log
+#
+# aaa_mode - RBAC configuration for analytics api
+#   no-auth - no authentication is performed and full access is granted to all
+#   cloud-admin - authentication is performed and only cloud-admin role has
+#                 access - default cloud-admin role is "admin"
+#   rbac RBAC - authentication is performed and access granted based on role
+#               and configured rules
+# aaa_mode = no-auth
+<% if defined?(@analytics_aaa_mode) && @analytics_aaa_mode != "" %>
+aaa_mode = <%= @analytics_aaa_mode %>
+<% end -%>
+
+
+
+[ANALYTICS_COLLECTOR]
+# log file name and log_level
+# log = /var/log/contrail/contrail-collector.log
+# Log severity levels. Possible values are SYS_EMERG, SYS_ALERT, SYS_CRIT,
+# SYS_ERR, SYS_WARN, SYS_NOTICE, SYS_INFO and SYS_DEBUG. Default is SYS_DEBUG
+# log_level = SYS_NOTICE
+#
+# Introspect port for debug
+# introspect_port = 8089
+#
+# Listen address and port
+# listen_port = 8086
+# listen_address = 0.0.0.0
+#
+# syslog_port = -1
+# analytics_data_ttl = 48
+# analytics_config_audit_ttl = 2160
+# analytics_statistics_ttl = 24
+# analytics_flow_ttl = 2
+
+[QUERY_ENGINE]
+# log file name and log_level
+# log = /var/log/contrail/contrail-query-engine.log
+# Log severity levels. Possible values are SYS_EMERG, SYS_ALERT, SYS_CRIT,
+# SYS_ERR, SYS_WARN, SYS_NOTICE, SYS_INFO and SYS_DEBUG. Default is SYS_DEBUG
+# log_level = SYS_NOTICE
+#
+# Introspect port for debug
+# introspect_port = 8091
+
+[SNMP_COLLECTOR]
+# log file name and log_level
+# log = /var/log/contrail/contrail-snmp-collector.log
+# Log severity levels. Possible values are SYS_EMERG, SYS_ALERT, SYS_CRIT,
+# SYS_ERR, SYS_WARN, SYS_NOTICE, SYS_INFO and SYS_DEBUG. Default is SYS_DEBUG
+# log_level = SYS_NOTICE
+#
+# Introspect port for debug
+# introspect_port = 5920
+#
+# scan_frequency=600
+#
+# fast_scan_frequency=60
+
+[TOPOLOGY]
+# log file name and log_level
+# log = /var/log/contrail/contrail-topology.log
+# Log severity levels. Possible values are SYS_EMERG, SYS_ALERT, SYS_CRIT,
+# SYS_ERR, SYS_WARN, SYS_NOTICE, SYS_INFO and SYS_DEBUG. Default is SYS_DEBUG
+# log_level = SYS_NOTICE
+#
+# Introspect port for debug
+# introspect_port = 5921
+
+[RABBITMQ]
+# All rabbitmq releated parameters used to
+# configure alarm-gen service in analytics contianer
+#
+# vhost = '/'
+<% if defined?(@rabbitmq_vhost) && @rabbitmq_vhost != "" %>
+vhost = <%= @rabbitmq_vhost %>
+<% end -%>
+# user = guest
+<% if defined?(@rabbitmq_user) && @rabbitmq_user != "" %>
+user = <%= @rabbitmq_user %>
+<% end -%>
+# password = guest
+<% if defined?(@rabbitmq_password) && @rabbitmq_password != "" %>
+password = <%= @rabbitmq_password %>
+<% end -%>
