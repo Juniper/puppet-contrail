@@ -7,8 +7,12 @@
 # This class is simply an helper to be included when all three provisions needs
 # to be done
 #
-class contrail::provision_config {
+class contrail::provision_config  (
+) inherits contrail::params {
 
-  include ::contrail::control::provision_config
-
+  if $version < 4 {
+    include ::contrail::control::provision_config
+  } else {
+    notify { "Skip Contrail provision analytics in container based deploument": }
+  }
 }
