@@ -46,11 +46,9 @@ class contrail::vrouter::install (
     package { 'contrail-vrouter-common' :
       ensure => latest,
     }
-    exec { 'ldconfig vrouter agent':
-      command => '/sbin/ldconfig',
-    }
     exec { 'set selinux to permissive' :
       command => '/sbin/setenforce permissive',
+      onlyif  => 'sestatus | grep -i "Current mode" | grep -q permissive',
     }
     file_line { 'make permissive mode persistant':
       ensure => present,
@@ -62,6 +60,9 @@ class contrail::vrouter::install (
       ensure  => file,
       source => '/usr/share/openstack-puppet/modules/contrail/files/vrouter/contrail-vrouter.rules',
     } 
+  }
+  exec { 'ldconfig vrouter agent':
+    command => '/sbin/ldconfig',
   }
   exec { '/sbin/weak-modules --add-kernel' :
     command => '/sbin/weak-modules --add-kernel',
