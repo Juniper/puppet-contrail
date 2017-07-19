@@ -52,6 +52,7 @@
 #   (optional) Operation to run (add|del)
 #   Defaults to 'add'
 #
+
 class contrail::config::provision_linklocal (
   $api_address                = '127.0.0.1',
   $api_port                   = 8082,
@@ -64,28 +65,35 @@ class contrail::config::provision_linklocal (
   $linklocal_service_ip       = '169.254.169.254',
   $linklocal_service_port     = 80,
   $oper                       = 'add',
-) {
+) inherits contrail::params {
 
-  #exec { "link local deploy wait for contrail config become available" :
-  #  path => '/usr/bin',
-  #  command => "/usr/bin/wget --spider --tries 150 --waitretry=2 --retry-connrefused http://${api_address}:8082",
-  #} ->
-  exec { "provision_linklocal.py ${api_address}" :
-    path => '/usr/bin',
-    command => "python /opt/contrail/utils/provision_linklocal.py \
-                 --api_server_ip ${api_address} \
-                 --api_server_port ${api_port} \
-                 --linklocal_service_name ${linklocal_service_name} \
-                 --linklocal_service_ip ${linklocal_service_ip} \
-                 --linklocal_service_port ${linklocal_service_port} \
-                 --ipfabric_service_ip ${ipfabric_service_ip} \
-                 --ipfabric_service_port ${ipfabric_service_port} \
-                 --admin_user ${keystone_admin_user} \
-                 --admin_password ${keystone_admin_password} \
-                 --admin_tenant ${keystone_admin_tenant_name} \
-                 --oper ${oper}",
-    tries => 100,
-    try_sleep => 3,
+  if $version < 4 {
+
+    #exec { "link local deploy wait for contrail config become available" :
+    #  path => '/usr/bin',
+    #  command => "/usr/bin/wget --spider --tries 150 --waitretry=2 --retry-connrefused http://${api_address}:8082",
+    #} ->
+    exec { "provision_linklocal.py ${api_address}" :
+      path => '/usr/bin',
+      command => "python /opt/contrail/utils/provision_linklocal.py \
+                  --api_server_ip ${api_address} \
+                  --api_server_port ${api_port} \
+                  --linklocal_service_name ${linklocal_service_name} \
+                  --linklocal_service_ip ${linklocal_service_ip} \
+                  --linklocal_service_port ${linklocal_service_port} \
+                  --ipfabric_service_ip ${ipfabric_service_ip} \
+                  --ipfabric_service_port ${ipfabric_service_port} \
+                  --admin_user ${keystone_admin_user} \
+                  --admin_password ${keystone_admin_password} \
+                  --admin_tenant ${keystone_admin_tenant_name} \
+                  --oper ${oper}",
+      tries => 100,
+      try_sleep => 3,
+    }
+  } else {
+
+    # Container based deployment
+
+    notify { 'Skip Contrail-Controller linklocal provisioning step in container based deployment': }
   }
-
 }

@@ -64,22 +64,25 @@ class contrail::control::provision_linklocal (
   $keystone_admin_password    = 'password',
   $keystone_admin_tenant_name = 'admin',
   $oper                       = 'add',
-) {
+) inherits contrail::params {
 
-  exec { "provision_linklocal.py ${api_address}" :
-    path => '/usr/bin',
-    command => "python /opt/contrail/utils/provision_linklocal.py \
-                 --api_server_ip ${api_address} \
-                 --api_server_port ${api_port} \
-                 --linklocal_service_name ${linklocal_service_name} \
-                 --linklocal_service_ip ${linklocal_service_ip} \
-                 --linklocal_service_port ${linklocal_service_port} \
-                 --ipfabric_service_ip ${ipfabric_service_ip} \
-                 --ipfabric_service_port ${ipfabric_service_port} \
-                 --admin_user ${keystone_admin_user} \
-                 --admin_password ${keystone_admin_password} \
-                 --admin_tenant ${keystone_admin_tenant_name} \
-                 --oper ${oper}",
+  if $version < 4 {
+    exec { "provision_linklocal.py ${api_address}" :
+      path => '/usr/bin',
+      command => "python /opt/contrail/utils/provision_linklocal.py \
+                  --api_server_ip ${api_address} \
+                  --api_server_port ${api_port} \
+                  --linklocal_service_name ${linklocal_service_name} \
+                  --linklocal_service_ip ${linklocal_service_ip} \
+                  --linklocal_service_port ${linklocal_service_port} \
+                  --ipfabric_service_ip ${ipfabric_service_ip} \
+                  --ipfabric_service_port ${ipfabric_service_port} \
+                  --admin_user ${keystone_admin_user} \
+                  --admin_password ${keystone_admin_password} \
+                  --admin_tenant ${keystone_admin_tenant_name} \
+                  --oper ${oper}",
+    }
+  } else {
+    notify { "Skip Contrail control provision linklocal in container based deploument": }
   }
-
 }
