@@ -48,18 +48,11 @@ class contrail::database::provision_database (
   $openstack_vip              = '127.0.0.1',
 ) {
 
-  #exec { "analytics database deploy wait for keystone become available" :
-  #  path => '/usr/bin',
-  #  command => "/usr/bin/wget --spider --tries 150 --waitretry=2 --retry-connrefused http://${openstack_vip}:35357",
-  #} ->
-  #exec { "analytics database deploy wait for contrail config become available" :
-  #  path => '/usr/bin',
-  #  command => "/usr/bin/wget --spider --tries 150 --waitretry=2 --retry-connrefused http://${api_address}:8082",
-  #} ->
+  $uname = inline_template("<%= `uname -n |tr -d '\n'` %>")
   exec { "provision_database_node.py ${control_node_name}" :
     path => '/usr/bin',
     command => "python /opt/contrail/utils/provision_database_node.py \
-                 --host_name ${::fqdn} \
+                 --host_name ${uname} \
                  --host_ip ${database_node_address} \
                  --api_server_ip ${api_address} \
                  --api_server_port ${api_port} \
