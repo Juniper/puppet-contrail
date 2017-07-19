@@ -15,6 +15,15 @@ class contrail::vrouter::install (
     package { 'contrail-openstack-vrouter' :
       ensure => latest,
     }
+    package { 'contrail-vrouter' :
+      ensure => latest,
+    }
+    package { 'contrail-vrouter-init' :
+      ensure => latest,
+    }
+    package { 'contrail-vrouter-agent' :
+      ensure => latest,
+    }
   } else {
     package { 'contrail-nova-vif' :
       ensure => latest,
@@ -34,11 +43,20 @@ class contrail::vrouter::install (
     package { 'contrail-setup' :
       ensure => latest,
     }
+    package { 'contrail-vrouter-common' :
+      ensure => latest,
+    }
     exec { 'ldconfig vrouter agent':
       command => '/sbin/ldconfig',
     }
     exec { 'set selinux to permissive' :
       command => '/sbin/setenforce permissive',
+    }
+    file_line { 'make permissive mode persistant':
+      ensure => present,
+      path   => '/etc/selinux/config',
+      line   => 'SELINUX=permissive',
+      match  => '^SELINUX=',
     }
     file {'/etc/contrail/supervisord_vrouter_files/contrail-vrouter.rules' :
       ensure  => file,
