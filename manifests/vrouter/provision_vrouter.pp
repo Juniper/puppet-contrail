@@ -48,15 +48,12 @@ class contrail::vrouter::provision_vrouter (
   $keystone_admin_tenant_name = 'admin',
   $oper                       = 'add',
 ) {
-  #exec { "vrouter deploy wait for contrail config become available" :
-  #  path => '/usr/bin',
-  #  command => "/usr/bin/wget --spider --tries 150 --waitretry=2 --retry-connrefused http://${api_address}:8082",
-  #} ->
+  $uname = inline_template("<%= `uname -n |tr -d '\n'` %>")
   if $is_dpdk {
     exec { "provision_vrouter.py ${node_name}" :
       path => '/usr/bin',
       command => "python /opt/contrail/utils/provision_vrouter.py \
-                   --host_name ${::fqdn} \
+                   --host_name ${uname} \
                    --host_ip ${host_ip} \
                    --api_server_ip ${api_address} \
                    --api_server_port ${api_port} \
@@ -72,7 +69,7 @@ class contrail::vrouter::provision_vrouter (
     exec { "provision_vrouter.py ${node_name}" :
       path => '/usr/bin',
       command => "python /opt/contrail/utils/provision_vrouter.py \
-                   --host_name ${::fqdn} \
+                   --host_name ${uname} \
                    --host_ip ${host_ip} \
                    --api_server_ip ${api_address} \
                    --api_server_port ${api_port} \
@@ -88,7 +85,7 @@ class contrail::vrouter::provision_vrouter (
     exec { "provision_vrouter.py ${node_name}" :
       path => '/usr/bin',
       command => "python /opt/contrail/utils/provision_vrouter.py \
-                   --host_name ${::fqdn} \
+                   --host_name ${uname} \
                    --host_ip ${host_ip} \
                    --api_server_ip ${api_address} \
                    --api_server_port ${api_port} \
