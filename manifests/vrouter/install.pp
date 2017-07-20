@@ -49,6 +49,12 @@ class contrail::vrouter::install (
     exec { 'set selinux to permissive' :
       command => '/sbin/setenforce permissive',
     }
+    file_line { 'make permissive mode persistant':
+      ensure => present,
+      path   => '/etc/selinux/config',
+      line   => 'SELINUX=permissive',
+      match  => '^SELINUX=',
+    }
     file {'/etc/contrail/supervisord_vrouter_files/contrail-vrouter.rules' :
       ensure  => file,
       source => '/usr/share/openstack-puppet/modules/contrail/files/vrouter/contrail-vrouter.rules',
