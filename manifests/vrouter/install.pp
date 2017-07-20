@@ -43,6 +43,9 @@ class contrail::vrouter::install (
     package { 'contrail-setup' :
       ensure => latest,
     }
+    package { 'contrail-vrouter-common' :
+      ensure => latest,
+    }
     exec { 'ldconfig vrouter agent':
       command => '/sbin/ldconfig',
     }
