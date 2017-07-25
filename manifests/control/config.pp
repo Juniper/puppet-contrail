@@ -25,26 +25,29 @@
 #
 class contrail::control::config (
   $secret,
-  $forwarder              = '8.8.8.8',
   $dns_config             = {},
-  $manage_named_conf      = true,
   $control_config         = {},
   $control_nodemgr_config = {},
+  $manage_named           = 'true',
+  $forwarder              = '8.8.8.8',
 ) {
 
-  include ::contrail::vnc_api
-  include ::contrail::ctrl_details
-  include ::contrail::service_token
-  include ::contrail::keystone
+#  include ::contrail::vnc_api
+#  include ::contrail::ctrl_details
+#  include ::contrail::service_token
+#  include ::contrail::keystone
 
   validate_hash($dns_config)
   validate_hash($control_config)
   validate_hash($control_nodemgr_config)
 
-  create_resources('contrail_dns_config', $dns_config)
-  create_resources('contrail_control_config', $control_config)
-  create_resources('contrail_control_nodemgr_config', $control_nodemgr_config)
+  $contrail_control_config         = { 'path' => '/etc/contrail/contrail-control.conf' }
+  $contrail_control_nodemgr_config = { 'path' => '/etc/contrail/contrail-control-nodemgr.conf' }
+  $contrail_dns_config             = { 'path' => '/etc/contrail/contrail-dns.conf' }
 
+  create_ini_settings($control_config, $contrail_control_config)
+  create_ini_settings($control_nodemgr_config, $contrail_control_nodemgr_config)
+  create_ini_settings($dns_config, $contrail_dns_config)
   if $forwarder {
     if is_array($forwarder) {
       $forwarders_option = join([join($forwarder, ';'),';'], '')
@@ -54,8 +57,7 @@ class contrail::control::config (
   } else {
     $forwarders_option = ''
   }
-
-  if $manage_named_conf {
+  if $manage_named == 'true' {
     file { '/etc/contrail/dns/contrail-named.conf' :
       ensure  => file,
       content => template('contrail/contrail-named.conf.erb'),

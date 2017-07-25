@@ -1,6 +1,13 @@
 # == Class: contrail::params
 #
-class contrail::params {
+class contrail::params(
+  $analytics         = {},
+  $analyticsdatabase = {},
+  $config            = {},
+  $control           = {},
+  $database          = {},
+  $webui             = {},
+){
 
   $control_package_name = ['contrail-openstack-control']
   $config_package_name = ['contrail-openstack-config']

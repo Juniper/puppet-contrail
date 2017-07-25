@@ -1,0 +1,25 @@
+module contrailselinux 1.0;
+
+require {
+        type ifconfig_t;
+        type user_tmp_t;
+        type haproxy_exec_t;
+        type var_lib_t;
+        type http_port_t;
+        class process setrlimit;
+        class capability { kill net_bind_service setgid setuid sys_resource };
+        class tcp_socket name_bind;
+        class sock_file { create link rename unlink setattr write };
+        class dir { add_name mounton remove_name write };
+        class file { create execute execute_no_trans getattr open read unlink write };
+}
+
+#============= ifconfig_t ==============
+allow ifconfig_t user_tmp_t:dir mounton;
+allow ifconfig_t haproxy_exec_t:file { execute execute_no_trans open read };
+allow ifconfig_t http_port_t:tcp_socket name_bind;
+allow ifconfig_t self:capability { kill net_bind_service setgid setuid sys_resource };
+allow ifconfig_t self:process setrlimit;
+allow ifconfig_t var_lib_t:dir { add_name remove_name write };
+allow ifconfig_t var_lib_t:file { create getattr unlink open read write };
+allow ifconfig_t var_lib_t:sock_file { create link rename unlink setattr write };

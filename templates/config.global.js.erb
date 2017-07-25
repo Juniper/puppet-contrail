@@ -106,8 +106,8 @@ config.computeManager.ca = '';
 
 config.identityManager = {};
 config.identityManager.ip = '<%= @openstack_vip %>';
-config.identityManager.port = '5000';
-config.identityManager.authProtocol = 'http';
+config.identityManager.port = '<%= @auth_port %>';
+config.identityManager.authProtocol = '<%= @auth_protocol %>';
 /******************************************************************************
  * Note: config.identityManager.apiVersion is not controlled by boolean flag
  * config.serviceEndPointFromConfig. If specified apiVersion here, then these
@@ -117,7 +117,7 @@ config.identityManager.authProtocol = 'http';
 ******************************************************************************/
 config.identityManager.apiVersion = ['v2.0'];
 config.identityManager.strictSSL = false;
-config.identityManager.ca = '';
+config.identityManager.ca = '<%= @cert_file %>';
 
 config.storageManager = {};
 config.storageManager.ip = '<%= @openstack_vip %>';

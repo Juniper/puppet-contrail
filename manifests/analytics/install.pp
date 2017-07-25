@@ -8,11 +8,19 @@
 #   (optional) Package name for analytics
 #
 class contrail::analytics::install (
-  $package_name = $contrail::analytics::package_name,
 ) {
 
-  package { $package_name :
-    ensure => installed,
+  package { 'wget' :
+    ensure => latest,
+  }
+  package { 'python-redis' :
+    ensure => absent,
+  } ->
+  package { 'python-gevent' :
+    ensure => latest,
+  } ->
+  package { 'contrail-openstack-analytics' :
+    ensure => latest,
   }
 
 }

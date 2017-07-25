@@ -1,0 +1,11 @@
+--- /usr/lib/python2.7/site-packages/nova/virt/libvirt/designer.py	2016-12-13 17:59:45.025730264 +0000
++++ /usr/lib/python2.7/site-packages/nova/virt/libvirt/designer.py.mod	2016-12-13 17:57:28.998730264 +0000
+@@ -58,7 +58,7 @@
+
+     conf.net_type = "ethernet"
+     conf.target_dev = tapname
+-    conf.script = ""
++    conf.script = None
+
+
+ def set_vif_host_backend_802qbg_config(conf, devname, managerid,
