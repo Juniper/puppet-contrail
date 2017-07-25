@@ -8,18 +8,11 @@
 #   (optional) Package name for control
 #
 class contrail::control::install (
+  $package_name = $contrail::control::package_name,
 ) {
-  file {'/etc/ld.so.conf.d/contrail.conf':
-    ensure => file,
-    content => '/usr/lib',
-  } ->
-  exec { '/sbin/ldconfig':
-    command => '/sbin/ldconfig',
-  } ->
-  package { 'boost' :
-    ensure => latest,
-  } ->
-  package { 'contrail-openstack-control' :
-    ensure => latest,
+
+  package { $package_name :
+    ensure => installed,
   }
+
 }

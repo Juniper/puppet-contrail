@@ -47,14 +47,14 @@
 class contrail::control::provision_control (
   $api_address                = '127.0.0.1',
   $api_port                   = 8082,
+  $router_asn                 = 64512,
   $control_node_address       = $::ipaddress,
   $control_node_name          = $::hostname,
-  $ibgp_auto_mesh             = true,
   $keystone_admin_user        = 'admin',
   $keystone_admin_password    = 'password',
   $keystone_admin_tenant_name = 'admin',
+  $ibgp_auto_mesh             = true,
   $oper                       = 'add',
-  $router_asn                 = 64512,
 ) {
 
   if $ibgp_auto_mesh {
@@ -62,14 +62,11 @@ class contrail::control::provision_control (
   } else {
     $ibgp_auto_mesh_opt = '--no_ibgp_auto_mesh'
   }
-#  exec { "control deploy wait for contrail config become available" :
-#    path => '/usr/bin',
-#    command => "/usr/bin/wget --spider --tries 150 --waitretry=2 --retry-connrefused http://${api_address}:8082",
-#  } ->
+
   exec { "provision_control.py ${control_node_name}" :
     path => '/usr/bin',
     command => "python /opt/contrail/utils/provision_control.py \
-                 --host_name ${::fqdn} \
+                 --host_name ${control_node_name} \
                  --host_ip ${control_node_address} \
                  --router_asn ${router_asn} \
                  ${ibgp_auto_mesh_opt} \
@@ -79,7 +76,5 @@ class contrail::control::provision_control (
                  --admin_password ${keystone_admin_password} \
                  --admin_tenant ${keystone_admin_tenant_name} \
                  --oper ${oper}",
-    tries => 100,
-    try_sleep => 3,
   }
 }

@@ -8,15 +8,11 @@
 #   (optional) Package name for config
 #
 class contrail::config::install (
+  $package_name = $contrail::config::package_name,
 ) {
-  package { 'wget' :
-    ensure => latest,
-  }
-  package { 'python-gevent' :
-    ensure => latest,
-  } ->
-  package { 'contrail-openstack-config' :
-    ensure => latest,
+
+  package { $package_name :
+    ensure => installed,
   }
 
 }

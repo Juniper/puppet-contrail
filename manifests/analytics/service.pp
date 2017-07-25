@@ -4,10 +4,6 @@
 #
 class contrail::analytics::service {
 
-  service {'redis' :
-    ensure => running,
-    enable => true,
-  } ->
   service {'supervisor-analytics' :
     ensure => running,
     enable => true,
