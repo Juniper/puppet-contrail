@@ -53,6 +53,10 @@ controller_nodes = <%= @controller_nodes %>
 
 # ceph_controller_nodes - Comma seperated list of ceph controller server IP addresses - this will be used to serve ceph rest api request
 # ceph_controller_nodes = 127.0.0.1
+<% if defined?(@ceph_controller_nodes) && @ceph_controller_nodes != "" %>
+ceph_controller_nodes = <%= @ceph_controller_nodes %>
+<% end -%>
+
 
 # analytics_nodes - Comma separated list of analytics server IP addresses
 # analytics_nodes = 127.0.0.1
@@ -301,9 +305,18 @@ cafile = <%= @cafile %>
 aaa_mode = <%= @aaa_mode %>
 <% end -%>
 
+<% if defined?(@aaa_mode) && @aaa_mode == "cloud-admin" %>
 # Other RBAC related knobs
 # cloud_admin_role = "admin"
 # global_read_only_role = None
+<% if defined?(@cloud_admin_role) && @cloud_admin_role != "" %>
+cloud_admin_role = <%= @cloud_admin_role %>
+<% end -%>
+<% if defined?(@global_read_only_role) && @global_read_only_role != "" %>
+global_read_only_role = <%= @global_read_only_role %>
+<% end -%>
+<% end -%>
+
 
 [ANALYTICS_API]
 # Authentication mode. The effects of setting this are:
@@ -334,7 +347,13 @@ aaa_mode = <%= @analytics_aaa_mode %>
 
 [WEBUI]
 # http_listen_port = 8080
+<% if defined?(@web_http_listen_port) && @web_http_listen_port != "" %>
+http_listen_port = <%= @web_http_listen_port %>
+<% end -%>
 # https_listen_port = 8143
+<% if defined?(@web_https_listen_port) && @web_https_listen_port != "" %>
+https_listen_port = <%= @web_https_listen_port %>
+<% end -%>
 # webui_storage_enable = False
 # nova_api_ip = 1.2.3.4
 <% if defined?(@nova_api_ip) && @nova_api_ip != "" %>

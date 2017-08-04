@@ -6,6 +6,9 @@ define contrail::container::config (
   $template_file_dir              = 'contrail/contrailctl',
 
   $aaa_mode                       = hiera('contrail::aaa_mode', 'cloud-admin'),
+  $cloud_admin_role               = hiera('contrail::cloud_admin_role', undef),
+  $global_read_only_role          = hiera('contrail::global_read_only_role', undef),
+
   $analytics_aaa_mode             = hiera('contrail::analytics_aaa_mode', 'cloud-admin'),
 
   $admin_password                 = hiera('contrail::admin_password', undef),
@@ -40,8 +43,13 @@ define contrail::container::config (
   $rabbitmq_vhost                 = hiera('contrail::rabbitmq_vhost', undef),
 
   $external_lb                    = hiera('contrail::external_lb', undef),
-  $external_zookeeper_servers     = hiera('contrail::external_zookeeper_servers', undef),
-  $external_cassandra_servers     = hiera('contrail::external_cassandra_servers', undef),
+  $external_zookeeper_list        = hiera('contrail::external_zookeeper_servers', undef),
+  $external_cassandra_list        = hiera('contrail::external_cassandra_servers', undef),
+
+  $ceph_controller_nodes_list     = hiera('contrail::ceph_controller_nodes', undef),
+
+  $web_http_listen_port           = hiera('contrail::webui::http_port', undef),
+  $web_https_listen_port          = hiera('contrail::webui::https_port', undef),
 ) {
 
   if $auth_protocol == 'https' {
@@ -62,7 +70,18 @@ define contrail::container::config (
     undef   => undef,
     default => join($external_rabbitmq_list, ','),
   }
-
+  $external_zookeeper_servers = $external_zookeeper_list ? {
+    undef   => undef,
+    default => join($external_zookeeper_list, ','),
+  }
+  $external_cassandra_servers = $external_cassandra_list ? {
+    undef   => undef,
+    default => join($external_cassandra_list, ','),
+  }
+  $ceph_controller_nodes = $ceph_controller_nodes_list ? {
+    undef   => undef,
+    default => join($ceph_controller_nodes_list, ','),
+  }
   file { "${config_file_dir}/${config_file}" :
     ensure  => file,
     content => template("${template_file_dir}/${template_file}"),
