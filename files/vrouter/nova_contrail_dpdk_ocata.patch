@@ -1,0 +1,25 @@
+--- /usr/lib/python2.7/site-packages/nova/network/os_vif_util.py.orig	2017-05-29 18:41:32.260567105 +0000
++++ /usr/lib/python2.7/site-packages/nova/network/os_vif_util.py	2017-05-29 18:44:39.787924678 +0000
+@@ -333,6 +333,12 @@
+             raise exception.VifDetailsMissingVhostuserSockPath(
+                 vif_id=vif['id'])
+         return obj
++    elif vif['details'].get(model.VIF_DETAILS_VHOSTUSER_VROUTER_PLUG, False):
++        obj = _get_vif_instance(vif, objects.vif.VIFVHostUser,
++                                plugin="contrail_vrouter",
++                                vif_name=_get_vif_name(vif))
++        _set_vhostuser_settings(vif, obj)
++        return obj
+     else:
+         raise NotImplementedError()
+
+--- /usr/lib/python2.7/site-packages/nova/network/model.py.orig	2017-05-29 18:50:11.970846546 +0000
++++ /usr/lib/python2.7/site-packages/nova/network/model.py	2017-05-29 18:50:32.310797250 +0000
+@@ -51,6 +51,7 @@
+ # class
+ VIF_DETAILS_PORT_FILTER = 'port_filter'
+ VIF_DETAILS_OVS_HYBRID_PLUG = 'ovs_hybrid_plug'
++VIF_DETAILS_VHOSTUSER_VROUTER_PLUG = 'vhostuser_vrouter_plug'
+ VIF_DETAILS_PHYSICAL_NETWORK = 'physical_network'
+ VIF_DETAILS_BRIDGE_NAME = 'bridge_name'
+
