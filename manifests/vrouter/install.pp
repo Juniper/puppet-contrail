@@ -25,6 +25,9 @@ class contrail::vrouter::install (
       ensure => latest,
     }
   } else {
+    package { 'patch':
+      ensure => latest,
+    }
     package { 'contrail-nova-vif' :
       ensure => latest,
     }

@@ -173,43 +173,6 @@ class contrail::vrouter::config (
   create_ini_settings($nodemgr_cfg, $contrail_vrouter_nodemgr_config)
   create_ini_settings($vnc_api_cfg, $contrail_vnc_api_lib_config)
 
-  if $step == 5 and !$is_tsn {
-    file { '/nova_libvirt.patch' :
-      ensure  => file,
-      content => template('contrail/vrouter/nova_libvirt.patch.erb'),
-    } ->
-    file_line { 'patch nova':
-      ensure => present,
-      path   => '/usr/lib/python2.7/site-packages/nova/virt/libvirt/designer.py',
-      line   => '    conf.script = None',
-      match  => '^\ \ \ \ conf.script\ \=',
-    }
-  }
-
-  if $is_dpdk {
-    ini_setting { "libvirt_vif_driver":
-      ensure  => present,
-      path    => '/etc/nova/nova.conf',
-      section => 'DEFAULT',
-      setting => 'libvirt_vif_driver',
-      value   => 'nova_contrail_vif.contrailvif.VRouterVIFDriver',
-    }
-    ini_setting { "use_userspace_vhost":
-      ensure  => present,
-      path    => '/etc/nova/nova.conf',
-      section => 'CONTRAIL',
-      setting => 'use_userspace_vhost',
-      value   => 'true',
-    }
-    ini_setting { "use_huge_pages":
-      ensure  => present,
-      path    => '/etc/nova/nova.conf',
-      section => 'LIBVIRT',
-      setting => 'use_huge_pages',
-      value   => 'true',
-    }
-  }
-
   file { '/etc/contrail/agent_param' :
     ensure  => file,
     content => template('contrail/vrouter/agent_param.erb'),
@@ -226,6 +189,7 @@ class contrail::vrouter::config (
       content => "DISCOVERY=${discovery_ip}",
     }
   }
+
   if $::ipaddress_vhost0 != $vhost_ip {
     file { '/opt/contrail/utils/update_dev_net_config_files.py':
       ensure => file,
@@ -241,6 +205,64 @@ class contrail::vrouter::config (
                    --gateway ${gateway} \
                    --cidr ${vhost_ip}/${mask} \
                    --mac ${macaddr}",
+    }
+  }
+
+ if $step == 5 {
+    if !$is_tsn {
+      file { '/nova_libvirt.patch' :
+        ensure  => file,
+        content => template('contrail/vrouter/nova_libvirt.patch.erb'),
+      } ->
+      file_line { 'patch_nova_1':
+        ensure => present,
+        path   => '/usr/lib/python2.7/site-packages/nova/virt/libvirt/designer.py',
+        line   => '    conf.script = None',
+        match  => '^\ \ \ \ conf.script\ \=',
+      }
+    }
+
+    if $is_dpdk {
+      $nova_version_str = split($::nova_version, '-')
+      $nova_core_version = $nova_version_str[0]
+      $os_version = $nova_core_version ? {
+        /14.0/    => 'newton',
+        default   => 'ocata',
+      }
+      $nova_patch_name = "nova_contrail_dpdk_${os_version}.patch"
+      notify { "Nova ${nova_version_str}, core_ver=${nova_core_version}, patch=${nova_patch_name}":
+      } ->
+      ini_setting { "libvirt_vif_driver":
+        ensure  => present,
+        path    => '/etc/nova/nova.conf',
+        section => 'DEFAULT',
+        setting => 'libvirt_vif_driver',
+        value   => 'nova_contrail_vif.contrailvif.VRouterVIFDriver',
+      } ->
+      ini_setting { "use_userspace_vhost":
+        ensure  => present,
+        path    => '/etc/nova/nova.conf',
+        section => 'CONTRAIL',
+        setting => 'use_userspace_vhost',
+        value   => 'true',
+      } ->
+      ini_setting { "use_huge_pages":
+        ensure  => present,
+        path    => '/etc/nova/nova.conf',
+        section => 'LIBVIRT',
+        setting => 'use_huge_pages',
+        value   => 'true',
+      } ->
+      file { 'nova_contrail_dpdk.patch':
+        ensure => present,
+        path   => '/tmp/nova_contrail_dpdk.patch',
+        source => "puppet:///modules/contrail/vrouter/${nova_patch_name}",
+      } ->
+      exec { 'nova_dpdk_patch':
+        onlyif  => "patch -p 0 -i /tmp/nova_contrail_dpdk.patch -d '/' -b -f --dry-run",
+        command => "patch -p 0 -i /tmp/nova_contrail_dpdk.patch -d '/' -b",
+        path    => '/bin:/usr/bin',
+      }
     }
   }
 }
