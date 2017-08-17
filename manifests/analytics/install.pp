@@ -4,15 +4,34 @@
 #
 # === Parameters:
 #
-# [*package_name*]
-#   (optional) Package name for analytics
+# [*container_name*]
+#   (optional) Container name to load,
 #
+# [*container_url*]
+#   Mandatory for container based deployment
+#   URL for downloading container
+#
+
 class contrail::analytics::install (
-  $package_name = $contrail::analytics::package_name,
-) {
+  $container_image          = undef,
+  $container_name           = undef,
+  $container_url            = undef,
+) inherits contrail::params {
 
-  package { $package_name :
-    ensure => installed,
+  if $version < 4 {
+    package { 'python-redis' :
+      ensure => absent,
+    } ->
+    package { 'python-gevent' :
+      ensure => latest,
+    } ->
+    package { 'contrail-openstack-analytics' :
+      ensure => latest,
+    }
+  } else {
+    contrail::container::install { $container_name :
+      container_image => $container_image,
+      container_url   => $container_url,
+    }
   }
-
 }

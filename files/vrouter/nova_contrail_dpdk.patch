@@ -1,0 +1,52 @@
+--- /usr/lib/python2.7/site-packages/nova/virt/libvirt/vif.py.orig	2017-05-29 18:52:18.425563012 +0000
++++ /usr/lib/python2.7/site-packages/nova/virt/libvirt/vif.py	2017-05-29 18:54:06.321358804 +0000
+@@ -25,6 +25,7 @@
+ from os_vif import exception as osv_exception
+ from oslo_concurrency import processutils
+ from oslo_log import log as logging
++from oslo_config import cfg
+ 
+ import nova.conf
+ from nova import exception
+@@ -426,6 +427,9 @@
+         designer.set_vif_bandwidth_config(conf, inst_type)
+         return conf
+ 
++    def _set_config_VIFVHostUser(self, instance, vif, conf, host=None):
++        designer.set_vif_host_backend_vhostuser_config(conf, vif.mode, vif.path)
++
+     def _set_config_VIFBridge(self, instance, vif, conf, host=None):
+         conf.net_type = "bridge"
+         conf.source_dev = vif.bridge_name
+--- ./usr/lib/python2.7/site-packages/nova/network/os_vif_util.py.orig	2017-05-29 18:41:32.260567105 +0000
++++ ./usr/lib/python2.7/site-packages/nova/network/os_vif_util.py	2017-05-29 18:44:39.787924678 +0000
+@@ -300,6 +300,19 @@
+             raise exception.VifDetailsMissingVhostuserSockPath(
+                 vif_id=vif['id'])
+         return obj
++    elif vif['details'].get(model.VIF_DETAILS_VHOSTUSER_VROUTER_PLUG, False):
++        vif_details = vif['details']
++        mode = vif_details.get(model.VIF_DETAILS_VHOSTUSER_MODE,
++                               'server')
++        sock_path = vif_details.get(model.VIF_DETAILS_VHOSTUSER_SOCKET)
++        if sock_path is None:
++            raise exception.VifDetailsMissingVhostuserSockPath(
++                                                        vif_id=vif['id'])
++        obj = _get_vif_instance(vif, objects.vif.VIFVHostUser,
++                                mode=mode,
++                                path=sock_path,
++                                plugin="vrouter", vif_name=_get_vif_name(vif))
++        return obj
+     else:
+         raise NotImplementedError()
+ 
+--- /usr/lib/python2.7/site-packages/nova/network/model.py.orig	2017-05-29 18:50:11.970846546 +0000
++++ /usr/lib/python2.7/site-packages/nova/network/model.py	2017-05-29 18:50:32.310797250 +0000
+@@ -51,6 +51,7 @@
+ # class
+ VIF_DETAILS_PORT_FILTER = 'port_filter'
+ VIF_DETAILS_OVS_HYBRID_PLUG = 'ovs_hybrid_plug'
++VIF_DETAILS_VHOSTUSER_VROUTER_PLUG = 'vhostuser_vrouter_plug'
+ VIF_DETAILS_PHYSICAL_NETWORK = 'physical_network'
+ VIF_DETAILS_BRIDGE_NAME = 'bridge_name'
+ 

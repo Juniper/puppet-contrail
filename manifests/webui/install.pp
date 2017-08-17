@@ -8,11 +8,10 @@
 #   (optional) Package name for webui
 #
 class contrail::webui::install (
-  $package_name = $contrail::webui::package_name,
 ) {
 
-  package { $package_name :
-    ensure => installed,
+  package { 'contrail-openstack-webui' :
+    ensure => latest,
   }
 
 }

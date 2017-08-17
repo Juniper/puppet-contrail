@@ -1,0 +1,21 @@
+
+module contrailhaproxy2 1.0;
+
+require {
+	type ifconfig_t;
+	type var_lib_t;
+	class capability { kill net_bind_service };
+	class sock_file { link unlink write };
+	class file unlink;
+}
+
+#============= ifconfig_t ==============
+
+#!!!! This avc is allowed in the current policy
+allow ifconfig_t self:capability { kill net_bind_service };
+
+#!!!! WARNING: 'var_lib_t' is a base type.
+allow ifconfig_t var_lib_t:file unlink;
+
+#!!!! This avc is allowed in the current policy
+allow ifconfig_t var_lib_t:sock_file { link unlink write };

@@ -1,0 +1,24 @@
+module contrailhaproxy 1.0;
+
+require {
+        type ifconfig_t;
+        type haproxy_exec_t;
+        type var_lib_t;
+        class process setrlimit;
+        class capability { setgid setuid sys_resource };
+        class sock_file { create rename setattr };
+        class dir { add_name remove_name write };
+        class file { create execute execute_no_trans getattr open read write };
+}
+
+#============= ifconfig_t ==============
+allow ifconfig_t haproxy_exec_t:file { execute execute_no_trans open read };
+allow ifconfig_t self:capability { setgid setuid sys_resource };
+allow ifconfig_t self:process setrlimit;
+
+#!!!! WARNING: 'var_lib_t' is a base type.
+allow ifconfig_t var_lib_t:dir { add_name remove_name write };
+
+#!!!! WARNING: 'var_lib_t' is a base type.
+allow ifconfig_t var_lib_t:file { create getattr open read write };
+allow ifconfig_t var_lib_t:sock_file { create rename setattr };

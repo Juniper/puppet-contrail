@@ -1,0 +1,10 @@
+module contrailnetns 1.0;
+
+require {
+        type ifconfig_t;
+        type user_tmp_t;
+        class dir mounton;
+}
+
+#============= ifconfig_t ==============
+allow ifconfig_t user_tmp_t:dir mounton;
