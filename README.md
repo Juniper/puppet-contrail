@@ -29,7 +29,7 @@ Setup
 
 **What the puppet-contrail module affects**
 
-* puppet-contrail, the Juniper SDN service.
+* puppet-contrail, the Juniper SDN service
 
 ### Installing puppet-contrail
 
