@@ -28,7 +28,7 @@
 #   (optional) Hash of parameters for /etc/contrail/contrail-toplogy.conf
 #   Defaults to {}
 #
-class contrail::analytics::config (
+class contrail::analyticsnew::config (
   $alarm_gen_config         = {},
   $analytics_api_config     = {},
   $analytics_nodemgr_config = {},

@@ -8,7 +8,7 @@
 #   (optional) Hash of parameters for /etc/contrail/contrail-database-nodemgr.conf
 #   Defaults to {}
 #
-class contrail::analyticsdatabase::config (
+class contrail::analyticsdatabasenew::config (
   $database_nodemgr_config = {},
   $cassandra_servers       = "",
   $cassandra_ip            = $::ipaddress,
