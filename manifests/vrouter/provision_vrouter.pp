@@ -48,8 +48,15 @@ class contrail::vrouter::provision_vrouter (
   $keystone_admin_password    = 'password',
   $keystone_admin_tenant_name = 'admin',
   $oper                       = 'add',
+  $contrail_version           = hiera('contrail::contrail_version', 4),
+  $vhost_user_mode            = '',
 ) {
   $uname = inline_template("<%= `uname -n |tr -d '\n'` %>")
+  if $contrail_version >= 4 and vhost_user_mode != '' {
+    $vhost_user_mode_opts = "--virtual_router_vhost_user_mode ${vhost_user_mode}"
+  } else {
+    $vhost_user_mode_opts = ""
+  }
   if $is_dpdk {
     exec { "provision_vrouter.py ${node_name}" :
       path => '/usr/bin',
@@ -63,6 +70,7 @@ class contrail::vrouter::provision_vrouter (
                    --admin_password ${keystone_admin_password} \
                    --admin_tenant ${keystone_admin_tenant_name} \
                    --dpdk_enabled \
+                   ${vhost_user_mode_opts} \
                    --oper ${oper}",
       tries => 100,
       try_sleep => 3,
@@ -80,6 +88,7 @@ class contrail::vrouter::provision_vrouter (
                    --admin_password ${keystone_admin_password} \
                    --admin_tenant ${keystone_admin_tenant_name} \
                    --router_type tor-service-node \
+                   ${vhost_user_mode_opts} \
                    --oper ${oper}",
       tries => 100,
       try_sleep => 3,
@@ -96,6 +105,7 @@ class contrail::vrouter::provision_vrouter (
                    --admin_user ${keystone_admin_user} \
                    --admin_password ${keystone_admin_password} \
                    --admin_tenant ${keystone_admin_tenant_name} \
+                   ${vhost_user_mode_opts} \
                    --oper ${oper}",
       tries => 100,
       try_sleep => 3,
