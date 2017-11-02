@@ -10,3 +10,4 @@ spec/fixtures/
 coverage/
 *.sw*
 .vscode/
+.DS_Store
