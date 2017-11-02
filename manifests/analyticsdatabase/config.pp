@@ -45,6 +45,7 @@ class contrail::analyticsdatabase::config (
     mode   => '0755',
   } ->
   class {'::cassandra':
+    package_name      => 'cassandra',
 #    service_ensure => stopped,
 #    service_enable => false,
     settings        => {
