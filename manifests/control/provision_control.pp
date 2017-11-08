@@ -74,8 +74,7 @@ class contrail::control::provision_control (
                  --api_server_port ${api_port} \
                  --admin_user ${keystone_admin_user} \
                  --admin_password ${keystone_admin_password} \
-                 --admin_tenant ${keystone_admin_tenant_name} \
-                 --oper ${oper}",
+                 --admin_tenant ${keystone_admin_tenant_name}",
     tries => 100,
     try_sleep => 3,
   }
