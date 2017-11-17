@@ -25,7 +25,9 @@ class contrail::analytics (
   $rabbitmq_vhost,
   $rabbitmq_user,
   $rabbitmq_password,
+  $config_db_cql_server_list,
   $config_db_server_list,
+
 ) inherits contrail::params {
 
   anchor {'contrail::analytics::start': } ->
@@ -33,22 +35,23 @@ class contrail::analytics (
     contrail_version => $contrail_version,
   } ->
   class {'::contrail::analytics::config': 
-    alarm_gen_config         => $alarm_gen_config,
-    analytics_api_config     => $analytics_api_config,
-    analytics_nodemgr_config => $analytics_nodemgr_config,
-    collector_config         => $collector_config,
-    keystone_config          => $keystone_config,
-    query_engine_config      => $query_engine_config,
-    redis_config             => $redis_config,
-    snmp_collector_config    => $snmp_collector_config,
-    topology_config          => $topology_config,
-    vnc_api_lib_config       => $vnc_api_lib_config,
-    rabbitmq_server_list     => $rabbitmq_server_list,
-    rabbitmq_port            => $rabbitmq_port,
-    rabbitmq_vhost           => $rabbitmq_vhost,
-    rabbitmq_user            => $rabbitmq_user,
-    rabbitmq_password        => $rabbitmq_password,
-    config_db_server_list    => $config_db_server_list,
+    alarm_gen_config          => $alarm_gen_config,
+    analytics_api_config      => $analytics_api_config,
+    analytics_nodemgr_config  => $analytics_nodemgr_config,
+    collector_config          => $collector_config,
+    keystone_config           => $keystone_config,
+    query_engine_config       => $query_engine_config,
+    redis_config              => $redis_config,
+    snmp_collector_config     => $snmp_collector_config,
+    topology_config           => $topology_config,
+    vnc_api_lib_config        => $vnc_api_lib_config,
+    rabbitmq_server_list      => $rabbitmq_server_list,
+    rabbitmq_port             => $rabbitmq_port,
+    rabbitmq_vhost            => $rabbitmq_vhost,
+    rabbitmq_user             => $rabbitmq_user,
+    rabbitmq_password         => $rabbitmq_password,
+    config_db_cql_server_list => $config_db_cql_server_list,
+    config_db_server_list     => $config_db_server_list,
   } ~>
   class {'::contrail::analytics::service': }
   anchor {'contrail::analytics::end': }
