@@ -25,6 +25,7 @@ class contrail::analytics (
   $rabbitmq_vhost,
   $rabbitmq_user,
   $rabbitmq_password,
+  $config_db_cql_server_list,
   $config_db_server_list,
 ) inherits contrail::params {
 
@@ -45,7 +46,6 @@ class contrail::analytics (
     vnc_api_lib_config       => $vnc_api_lib_config,
     rabbitmq_server_list     => $rabbitmq_server_list,
     rabbitmq_port            => $rabbitmq_port,
-    rabbitmq_vhost           => $rabbitmq_vhost,
     rabbitmq_user            => $rabbitmq_user,
     rabbitmq_password        => $rabbitmq_password,
   } ~>
