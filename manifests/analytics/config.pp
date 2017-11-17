@@ -44,6 +44,7 @@ class contrail::analytics::config (
   $rabbitmq_vhost,
   $rabbitmq_user,
   $rabbitmq_password,
+  $config_db_cql_server_list,
   $config_db_server_list,
 ) {
   file { '/etc/contrail/contrail-keystone-auth.conf':
@@ -76,7 +77,9 @@ class contrail::analytics::config (
     match   => "^bind.*$",
   }
 
-  $config_data = {
+  $rabbit_server = split($rabbitmq_server_list, ',')
+  $rabbit_server_list_port = join([join($rabbit_server, ":${rabbitmq_port} "),":${rabbitmq_port}"],'')
+  $config_data_port_separately = {
     'CONFIGDB'  => {
       'rabbitmq_server_list'  => $rabbitmq_server_list,
       'rabbitmq_port'         => $rabbitmq_port,
@@ -86,8 +89,25 @@ class contrail::analytics::config (
       'config_db_server_list' => $config_db_server_list,
       }
   }
-  $merged_alarm_gen_config      = merge($alarm_gen_config, $config_data)
-  $merged_collector_config      = merge($collector_config, $config_data)
+  $config_data = {
+    'CONFIGDB'  => {
+      'rabbitmq_server_list'  => $rabbit_server_list_port,
+      'rabbitmq_vhost'        => $rabbitmq_vhost,
+      'rabbitmq_user'         => $rabbitmq_user,
+      'rabbitmq_password'     => $rabbitmq_password,
+      'config_db_server_list' => $config_db_server_list,
+      }
+  $config_data_cql_port = {
+    'CONFIGDB'  => {
+      'rabbitmq_server_list'  => $rabbit_server_list_port,
+      'rabbitmq_vhost'        => $rabbitmq_vhost,
+      'rabbitmq_user'         => $rabbitmq_user,
+      'rabbitmq_password'     => $rabbitmq_password,
+      'config_db_server_list' => $config_db_cql_server_list,
+      }
+  }
+  $merged_alarm_gen_config      = merge($alarm_gen_config, $config_data_port_separately)
+  $merged_collector_config      = merge($collector_config, $config_data_cql_port)
   $merged_snmp_collector_config = merge($snmp_collector_config, $config_data)
   $merged_topology_config       = merge($topology_config, $config_data)
 
