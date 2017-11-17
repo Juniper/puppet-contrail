@@ -25,6 +25,7 @@ class contrail::analytics (
   $rabbitmq_vhost,
   $rabbitmq_user,
   $rabbitmq_password,
+  $config_db_cql_server_list,
   $config_db_server_list,
 ) inherits contrail::params {
 
