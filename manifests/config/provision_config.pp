@@ -46,6 +46,7 @@ class contrail::config::provision_config (
   $keystone_admin_tenant_name = 'admin',
   $oper                       = 'add',
   $openstack_vip              = '127.0.0.1',
+  $global_asn                 = '64512',
 ) {
   $uname = inline_template("<%= `uname -n |tr -d '\n'` %>")
   exec { "provision_config_node.py ${config_node_name}" :
@@ -60,6 +61,19 @@ class contrail::config::provision_config (
                  --admin_tenant ${keystone_admin_tenant_name} \
                  --openstack_ip ${openstack_vip} \
                  --oper ${oper}",
+    tries => 100,
+    try_sleep => 3,
+  }
+  exec { "provision_global_asn.py ${global_asn}" :
+    path => '/usr/bin',
+    command => "python /opt/contrail/utils/provision_global_asn.py \
+                 --api_server_ip ${api_address} \
+                 --api_server_port ${api_port} \
+                 --admin_user ${keystone_admin_user} \
+                 --admin_password ${keystone_admin_password} \
+                 --admin_tenant ${keystone_admin_tenant_name} \
+                 --openstack_ip ${openstack_vip} \
+                 --global_asn ${global_asn}",
     tries => 100,
     try_sleep => 3,
   }
