@@ -18,5 +18,9 @@ class contrail::config::install (
   package { 'contrail-openstack-config' :
     ensure => latest,
   }
+  file { '/opt/utils/contrail/provision_global_asn.py' :
+    ensure  => file,
+    source => '/usr/share/openstack-puppet/modules/contrail/files/config/provision_global_asn.py',
+  } ->
 
 }
