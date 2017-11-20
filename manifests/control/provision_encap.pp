@@ -66,6 +66,8 @@ class contrail::control::provision_encap (
                  --admin_user ${keystone_admin_user} \
                  --admin_password ${keystone_admin_password} \
                  --oper ${oper}",
+    tries => 100,
+    try_sleep => 3,
   }
 
 }
