@@ -19,6 +19,10 @@ class contrail::analyticsdatabase::config (
   $kafka_hostnames         = hiera('contrail_analytics_database_short_node_names', ''),
   $vnc_api_lib_config      = {},
   $zookeeper_server_ips    = hiera('contrail_database_node_ips'),
+  $root_directory          = '/var/lib/cassandra',
+  $commitlog_directory     = '/var/lib/cassandra/commitlog',
+  $data_file_directories   = ['/var/lib/cassandra/commitlog'],
+  $saved_caches_directory  = '/var/lib/cassandra/saved_caches',
 ) {
   $zk_server_ip_2181 = join([join($zookeeper_server_ips, ':2181,'),":2181"],'')
   validate_hash($database_nodemgr_config)
@@ -38,7 +42,7 @@ class contrail::analyticsdatabase::config (
   create_ini_settings($vnc_api_lib_config, $contrail_vnc_api_lib_config)
   validate_ipv4_address($cassandra_ip)
 
-  file { ['/var/lib/cassandra', ]:
+  file { $root_directory:
     ensure => 'directory',
     owner  => 'cassandra',
     group  => 'cassandra',
@@ -54,13 +58,13 @@ class contrail::analyticsdatabase::config (
       'ssl_storage_port'      => $ssl_storage_port,
       'native_transport_port' => $client_port,
       'rpc_port'              => $client_port_thrift,
-      'commitlog_directory'         => '/var/lib/cassandra/commitlog',
+      'commitlog_directory'         => $commitlog_directory,
       'commitlog_sync'              => 'periodic',
       'commitlog_sync_period_in_ms' => 10000,
       'partitioner'                 => 'org.apache.cassandra.dht.Murmur3Partitioner',
       'endpoint_snitch'             => 'GossipingPropertyFileSnitch',
-      'data_file_directories'       => ['/var/lib/cassandra/data'],
-      'saved_caches_directory'      => '/var/lib/cassandra/saved_caches',
+      'data_file_directories'       => $data_file_directories,
+      'saved_caches_directory'      => $saved_caches_directory,
       'seed_provider'               => [
         {
           'class_name' => 'org.apache.cassandra.locator.SimpleSeedProvider',
