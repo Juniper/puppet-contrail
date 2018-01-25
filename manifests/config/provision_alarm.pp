@@ -27,6 +27,7 @@
 class contrail::config::provision_alarm (
   $api_address                = '127.0.0.1',
   $api_port                   = 8082,
+  $api_server_use_ssl         = false,
   $keystone_admin_user        = 'admin',
   $keystone_admin_password    = 'password',
   $keystone_admin_tenant_name = 'admin',
@@ -36,6 +37,7 @@ class contrail::config::provision_alarm (
     command => "python /opt/contrail/utils/provision_alarm.py \
                  --api_server_ip ${api_address} \
                  --api_server_port ${api_port} \
+                 --api_server_use_ssl ${api_server_use_ssl} \
                  --admin_user ${keystone_admin_user} \
                  --admin_password ${keystone_admin_password} \
                  --admin_tenant ${keystone_admin_tenant_name}",

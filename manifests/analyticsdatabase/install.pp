@@ -16,6 +16,9 @@ class contrail::analyticsdatabase::install (
   package { 'java-1.8.0-openjdk' :
     ensure => '1.8.0.151-5.b12.el7_4',
   } ->
+  package { 'python-gevent' :
+    ensure => latest,
+  } ->
   package { 'contrail-openstack-database' :
     ensure => latest,
   }

@@ -44,6 +44,7 @@ class contrail::analytics::config (
   $rabbitmq_vhost,
   $rabbitmq_user,
   $rabbitmq_password,
+  $rabbit_ssl_config        = {},
 ) {
   file { '/etc/contrail/contrail-keystone-auth.conf':
     ensure => file,
@@ -74,7 +75,9 @@ class contrail::analytics::config (
     line => $redis_config,
     match   => "^bind.*$",
   }
-
+  $config_ssl ={
+    'DEFAULTS' => $rabbit_ssl_config
+  }
   $config_data = {
     'DEFAULTS' => {
       'rabbitmq_server_list'  => $rabbitmq_server_list,
@@ -84,7 +87,7 @@ class contrail::analytics::config (
       'rabbitmq_password'     => $rabbitmq_password,
       }
   }
-  $merged_alarm_gen_config = deep_merge($alarm_gen_config, $config_data)
+  $merged_alarm_gen_config = deep_merge($alarm_gen_config, deep_merge($config_data, $config_ssl))
 
   create_ini_settings($merged_alarm_gen_config, $contrail_alarm_gen_config)
   create_ini_settings($analytics_api_config, $contrail_analytics_api_config)

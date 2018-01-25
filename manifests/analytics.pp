@@ -27,6 +27,7 @@ class contrail::analytics (
   $rabbitmq_password,
   $config_db_cql_server_list,
   $config_db_server_list,
+  $rabbit_ssl_config = {},
 ) inherits contrail::params {
 
   anchor {'contrail::analytics::start': } ->
@@ -49,6 +50,7 @@ class contrail::analytics (
     rabbitmq_vhost           => $rabbitmq_vhost,
     rabbitmq_user            => $rabbitmq_user,
     rabbitmq_password        => $rabbitmq_password,
+    rabbit_ssl_config        => $rabbit_ssl_config,
   } ~>
   class {'::contrail::analytics::service': }
   anchor {'contrail::analytics::end': }

@@ -13,6 +13,7 @@ class contrail::vrouter::install (
 ) {
 
   $common_pkgs = [
+    'python-gevent',
     'contrail-nova-vif',
     'contrail-vrouter-agent',
   ]
@@ -38,7 +39,7 @@ class contrail::vrouter::install (
   }
 
   if !$is_dpdk {
-    $pkgs = concat($no_dpdk_common_pkgs, concat($common_pkgs, $ver_pkgs))
+    $pkgs = concat(concat($common_pkgs, $ver_pkgs), $no_dpdk_common_pkgs)
     package { $pkgs :
       ensure => latest,
     }

@@ -55,6 +55,7 @@
 class contrail::control::provision_linklocal (
   $api_address                = '127.0.0.1',
   $api_port                   = 8082,
+  $api_server_use_ssl         = false,
   $linklocal_service_name     = 'metadata',
   $linklocal_service_ip       = '169.254.169.254',
   $linklocal_service_port     = 80,
@@ -71,6 +72,7 @@ class contrail::control::provision_linklocal (
     command => "python /opt/contrail/utils/provision_linklocal.py \
                  --api_server_ip ${api_address} \
                  --api_server_port ${api_port} \
+                 --api_server_use_ssl ${api_server_use_ssl} \
                  --linklocal_service_name ${linklocal_service_name} \
                  --linklocal_service_ip ${linklocal_service_ip} \
                  --linklocal_service_port ${linklocal_service_port} \
