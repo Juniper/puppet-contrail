@@ -54,8 +54,8 @@ class contrail::analytics (
     rabbit_ssl_config         => $rabbit_ssl_config,
     config_db_cql_server_list => $config_db_cql_server_list,
     config_db_server_list     => $config_db_server_list,
-  } ~>
-  class {'::contrail::analytics::service': }
+  } ->
+  class {'::contrail::analytics::service': } ->
   anchor {'contrail::analytics::end': }
   
 }
