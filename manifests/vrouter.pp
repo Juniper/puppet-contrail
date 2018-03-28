@@ -47,7 +47,7 @@ class contrail::vrouter (
     vrouter_agent_config   => $vrouter_agent_config,
     vrouter_nodemgr_config => $vrouter_nodemgr_config,
     vnc_api_lib_config     => $vnc_api_lib_config,
-  } ~>
+  } ->
   class {'::contrail::vrouter::service': 
     cidr               => $mask,
     gateway            => $gateway,
@@ -57,6 +57,6 @@ class contrail::vrouter (
     macaddr            => $macaddr,
     physical_interface => $physical_interface,
     vhost_ip           => $vhost_ip,
-  }
+  } ->
   anchor {'contrail::vrouter::end': }
 }

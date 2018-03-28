@@ -48,7 +48,7 @@ class contrail::webui (
     auth_version              => $auth_version,
 #  } ~>
   } ->
-  class {'::contrail::webui::service': }
+  class {'::contrail::webui::service': } ->
   anchor {'contrail::webui::end': }
 
 }

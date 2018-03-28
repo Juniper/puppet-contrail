@@ -51,8 +51,8 @@ class contrail::analytics (
     rabbitmq_user            => $rabbitmq_user,
     rabbitmq_password        => $rabbitmq_password,
     rabbit_ssl_config        => $rabbit_ssl_config,
-  } ~>
-  class {'::contrail::analytics::service': }
+  } ->
+  class {'::contrail::analytics::service': } ->
   anchor {'contrail::analytics::end': }
 
 }
