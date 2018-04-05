@@ -34,8 +34,8 @@ class contrail::config (
     schema_config           => $schema_config,
     svc_monitor_config      => $svc_monitor_config,
     vnc_api_lib_config      => $vnc_api_lib_config,
-  } ~>
-  class {'::contrail::config::service': }
+  } ->
+  class {'::contrail::config::service': } ->
   anchor {'contrail::config::end': }
   
 }

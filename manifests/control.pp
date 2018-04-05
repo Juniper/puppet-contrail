@@ -26,8 +26,8 @@ class contrail::control (
     dns_config             => $dns_config,
     secret                 => $secret,
     manage_named           => $manage_named,
-  } ~>
-  class {'::contrail::control::service': }
+  } ->
+  class {'::contrail::control::service': } ->
   anchor {'contrail::control::end': }
   
 }

@@ -21,8 +21,8 @@ class contrail::analyticsdatabase (
     kafka_hostnames         => $analyticsdatabase_params['kafka_hostnames'],
     vnc_api_lib_config      => $analyticsdatabase_params['vnc_api_lib_config'],
     zookeeper_server_ips    => $analyticsdatabase_params['zookeeper_server_ips'],
-  } ~>
-  class {'::contrail::analyticsdatabase::service': }
+  } ->
+  class {'::contrail::analyticsdatabase::service': } ->
   anchor {'contrail::analyticsdatabase::end': }
   
 }

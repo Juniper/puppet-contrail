@@ -12,7 +12,7 @@ class contrail::heat (
   class {'::contrail::heat::install': } ->
   class {'::contrail::heat::config': 
     heat_config => $heat_config,
-  }
+  } ->
   #} ~>
   #class {'::contrail::heat::service': }
   anchor {'contrail::heat::end': }
