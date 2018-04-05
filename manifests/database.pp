@@ -26,8 +26,8 @@ class contrail::database (
     zookeeper_server_ips    => $database_params['zookeeper_server_ips'],
     zookeeper_client_ip     => $database_params['zookeeper_client_ip'],
     zookeeper_hostnames     => $database_params['zookeeper_hostnames'],
-  } ~>
-  class {'::contrail::database::service': }
+  } ->
+  class {'::contrail::database::service': } ->
   anchor {'contrail::database::end': }
   
 }
