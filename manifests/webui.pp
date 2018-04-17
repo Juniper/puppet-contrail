@@ -25,6 +25,10 @@ class contrail::webui (
   $contrail_webui_http_port,
   $contrail_webui_https_port,
   $redis_ip,
+  $introspect_ssl_enable,
+  $sandesh_keyfile,
+  $sandesh_certfile,
+  $sandesh_ca_cert,
 ) inherits contrail::params {
 
   anchor {'contrail::webui::start': } ->
@@ -46,6 +50,10 @@ class contrail::webui (
     auth_port                 => $auth_port,
     auth_protocol             => $auth_protocol,
     auth_version              => $auth_version,
+    introspect_ssl_enable     => $introspect_ssl_enable,
+    sandesh_keyfile           => $sandesh_keyfile,
+    sandesh_certfile          => $sandesh_certfile,
+    sandesh_ca_cert           => $sandesh_ca_cert,
 #  } ~>
   } ->
   class {'::contrail::webui::service': } ->
