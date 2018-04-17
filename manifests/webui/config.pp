@@ -45,6 +45,10 @@ class contrail::webui::config (
   $auth_protocol             = 'http',
   $auth_version              = 2,
   $cert_file                 = '',
+  $introspect_ssl_enable     = false,
+  $sandesh_keyfile           = '',
+  $sandesh_certfile          = '',
+  $sandesh_ca_cert           = '',
 ) {
 
   $contrail_vip = $contrail_config_vip
