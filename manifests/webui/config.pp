@@ -46,6 +46,7 @@ class contrail::webui::config (
   $auth_version              = 2,
   $cert_file                 = '',
   $introspect_ssl_enable     = false,
+  $introspect_auth_protocol  = 'http',
   $sandesh_keyfile           = '',
   $sandesh_certfile          = '',
   $sandesh_ca_cert           = '',
