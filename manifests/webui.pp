@@ -26,6 +26,7 @@ class contrail::webui (
   $contrail_webui_https_port,
   $redis_ip,
   $introspect_ssl_enable = false,
+  $cnfg_auth_protocol = 'http',
   $sandesh_keyfile = '',
   $sandesh_certfile = '',
   $sandesh_ca_cert = '',
