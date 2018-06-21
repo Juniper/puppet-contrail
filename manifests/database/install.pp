@@ -14,7 +14,7 @@ class contrail::database::install (
     ensure => latest,
   } ->
   package { 'java-1.8.0-openjdk' :
-    ensure => '1.8.0.151-5.b12.el7_4',
+    ensure => latest,
   } ->
 #  package { 'contrail-openstack-database' :
 #  package { 'zookeeper' :
