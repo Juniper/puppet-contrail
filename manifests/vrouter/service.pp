@@ -14,6 +14,11 @@ class contrail::vrouter::service(
   $vhost_ip,
 ) {
 
+  $service_name = 'supervisor-vrouter'
+  File<||> -> Service<| name == $service_name |>
+  Ini_setting<||> -> Service<| name == $service_name |>
+  File_line<||> -> Service<| name == $service_name |>
+
   service {'supervisor-vrouter' :
     ensure => running,
     enable => true,

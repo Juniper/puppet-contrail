@@ -4,6 +4,11 @@
 #
 class contrail::config::service {
 
+  $service_name = 'supervisor-config'
+  File<||> -> Service<| name == $service_name |>
+  Ini_setting<||> -> Service<| name == $service_name |>
+  File_line<||> -> Service<| name == $service_name |>
+
   service {'supervisor-config' :
     ensure => running,
     enable => true,
