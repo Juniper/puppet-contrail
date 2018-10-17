@@ -82,6 +82,7 @@ class contrail::control::provision_linklocal (
                  --admin_password ${keystone_admin_password} \
                  --admin_tenant ${keystone_admin_tenant_name} \
                  --oper ${oper}",
+    tries => 100,
+    try_sleep => 5,
   }
-
 }

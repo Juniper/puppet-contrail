@@ -65,7 +65,7 @@ class contrail::vrouter::provision_vrouter (
                    --dpdk_enabled \
                    --oper ${oper}",
       tries => 100,
-      try_sleep => 3,
+      try_sleep => 5,
     }
   } elsif $is_tsn {
     exec { "provision_vrouter.py ${node_name}" :
@@ -82,7 +82,7 @@ class contrail::vrouter::provision_vrouter (
                    --router_type tor-service-node \
                    --oper ${oper}",
       tries => 100,
-      try_sleep => 3,
+      try_sleep => 5,
     }
   } else {
     exec { "provision_vrouter.py ${node_name}" :
@@ -98,7 +98,7 @@ class contrail::vrouter::provision_vrouter (
                    --admin_tenant ${keystone_admin_tenant_name} \
                    --oper ${oper}",
       tries => 100,
-      try_sleep => 3,
+      try_sleep => 5,
     }
   }
 }

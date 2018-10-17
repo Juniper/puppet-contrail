@@ -85,7 +85,7 @@ class contrail::control::provision_control (
                  --admin_password ${keystone_admin_password} \
                  --admin_tenant ${keystone_admin_tenant_name}",
     tries     => 100,
-    try_sleep => 3,
+    try_sleep => 5,
   } ->
   exec { "provision_control.py ${control_node_name} bgp speaker" :
     path      => '/usr/bin',
@@ -103,6 +103,6 @@ class contrail::control::provision_control (
                  --admin_tenant ${keystone_admin_tenant_name} \
                  --oper ${oper}",
     tries     => 100,
-    try_sleep => 3,
+    try_sleep => 5,
   }
 }

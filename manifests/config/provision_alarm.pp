@@ -42,6 +42,6 @@ class contrail::config::provision_alarm (
                  --admin_password ${keystone_admin_password} \
                  --admin_tenant ${keystone_admin_tenant_name}",
     tries => 100,
-    try_sleep => 3,
+    try_sleep => 5,
   }
 }

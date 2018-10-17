@@ -61,6 +61,6 @@ class contrail::database::provision_database (
                  --openstack_ip ${openstack_vip} \
                  --oper ${oper}",
     tries => 100,
-    try_sleep => 3,
+    try_sleep => 5,
   }
 }
