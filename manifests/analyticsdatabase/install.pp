@@ -11,16 +11,12 @@ class contrail::analyticsdatabase::install (
 ) {
 
   package { 'wget' :
-    ensure => latest,
   } ->
   package { 'java-1.8.0-openjdk' :
-    ensure => latest,
   } ->
   package { 'python-gevent' :
-    ensure => latest,
   } ->
   package { 'contrail-openstack-database' :
-    ensure => latest,
   }
 #  } ->
 #  exec { 'stop contrail-database service':

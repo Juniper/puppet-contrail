@@ -41,12 +41,10 @@ class contrail::vrouter::install (
   if !$is_dpdk {
     $pkgs = concat(concat($common_pkgs, $ver_pkgs), $no_dpdk_common_pkgs)
     package { $pkgs :
-      ensure => latest,
     }
   } else {
     $pkgs = concat($common_pkgs, $ver_pkgs)
     package { $pkgs :
-      ensure => latest,
     } ->
     exec { 'set selinux to permissive' :
       command => 'setenforce permissive',

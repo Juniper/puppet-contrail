@@ -17,9 +17,7 @@ class contrail::control::install (
     command => '/sbin/ldconfig',
   } ->
   package { 'boost' :
-    ensure => latest,
   } ->
   package { 'contrail-openstack-control' :
-    ensure => latest,
   }
 }

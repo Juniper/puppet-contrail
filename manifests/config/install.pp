@@ -10,13 +10,10 @@
 class contrail::config::install (
 ) {
   package { 'wget' :
-    ensure => latest,
   }
   package { 'python-gevent' :
-    ensure => latest,
   } ->
   package { 'contrail-openstack-config' :
-    ensure => latest,
   }
 
 }
