@@ -19,6 +19,7 @@ class contrail::analyticsdatabase::config (
   $kafka_hostnames         = hiera('contrail_analytics_database_short_node_names', ''),
   $vnc_api_lib_config      = {},
   $zookeeper_server_ips    = hiera('contrail_database_node_ips'),
+  $kafka_config            = hiera('contrail_kafka_config', '/etc/kafka/server.properties'),
 ) {
   $zk_server_ip_2181 = join([join($zookeeper_server_ips, ':2181,'),":2181"],'')
   validate_hash($database_nodemgr_config)
@@ -186,89 +187,89 @@ class contrail::analyticsdatabase::config (
   }
 
   $kafka_broker_id = extract_id($kafka_hostnames, $::hostname)
-  file { '/usr/share/kafka/config/server.properties':
+  file { $kafka_config :
     ensure => present,
   } ->
   file_line { 'add zookeeper servers to kafka config':
-    path  => '/usr/share/kafka/config/server.properties',
+    path  => $kafka_config,
     line  => "zookeeper.connect=${zk_server_ip_2181}",
     match => '^zookeeper.connect=.*$',
   } ->
   file_line { 'set kafka broker id':
-    path  => '/usr/share/kafka/config/server.properties',
+    path  => $kafka_config,
     line  => "broker.id=${kafka_broker_id}",
     match => '^broker.id=.*$',
   } ->
   file_line { 'set kafka advertised.host.name':
-    path => '/usr/share/kafka/config/server.properties',
+    path => $kafka_config,
     line => "advertised.host.name=${::ipaddress}",
   } ->
   file_line { 'set kafka num.network.threads=3':
-    path => '/usr/share/kafka/config/server.properties',
+    path => $kafka_config,
     line => 'num.network.threads=3',
   } ->
   file_line { 'set kafka num.io.threads=8':
-    path => '/usr/share/kafka/config/server.properties',
+    path => $kafka_config,
     line => 'num.io.threads=8',
   } ->
   file_line { 'set kafka socket.send.buffer.bytes=102400':
-    path => '/usr/share/kafka/config/server.properties',
+    path => $kafka_config,
     line => 'socket.send.buffer.bytes=102400',
   } ->
   file_line { 'set kafka socket.receive.buffer.bytes=102400':
-    path => '/usr/share/kafka/config/server.properties',
+    path => $kafka_config,
     line => 'socket.receive.buffer.bytes=102400',
   } ->
   file_line { 'set kafka socket.request.max.bytes=104857600':
-    path => '/usr/share/kafka/config/server.properties',
+    path => $kafka_config,
     line => 'socket.request.max.bytes=104857600',
   } ->
   file_line { 'set kafka num.partitions=1':
-    path => '/usr/share/kafka/config/server.properties',
+    path => $kafka_config,
     line => 'num.partitions=1',
   } ->
   file_line { 'set kafka num.recovery.threads.per.data.dir=1':
-    path => '/usr/share/kafka/config/server.properties',
+    path => $kafka_config,
     line => 'num.recovery.threads.per.data.dir=1',
   } ->
   file_line { 'set kafka log.retention.hours=24':
-    path => '/usr/share/kafka/config/server.properties',
+    path => $kafka_config,
     line => 'log.retention.hours=24',
   } ->
   file_line { 'set kafka log.retention.bytes=268435456':
-    path => '/usr/share/kafka/config/server.properties',
+    path => $kafka_config,
     line => 'log.retention.bytes=268435456',
   } ->
   file_line { 'set kafka log.segment.bytes=268435456':
-    path => '/usr/share/kafka/config/server.properties',
+    path => $kafka_config,
     line => 'log.segment.bytes=268435456',
   } ->
   file_line { 'set kafka log.retention.check.interval.ms=300000':
-    path => '/usr/share/kafka/config/server.properties',
+    path => $kafka_config,
     line => 'log.retention.check.interval.ms=300000',
   } ->
   file_line { 'set kafka zookeeper.connection.timeout.ms=6000':
-    path => '/usr/share/kafka/config/server.properties',
+    path => $kafka_config,
     line => 'zookeeper.connection.timeout.ms=6000',
   } ->
   file_line { 'set kafka log.cleanup.policy=delete':
-    path => '/usr/share/kafka/config/server.properties',
+    path => $kafka_config,
     line => 'log.cleanup.policy=delete',
   } ->
   file_line { 'set kafka delete.topic.enable=true':
-    path => '/usr/share/kafka/config/server.properties',
+    path => $kafka_config,
     line => 'delete.topic.enable=true',
   } ->
   file_line { 'set kafka log.cleaner.threads=2':
-    path => '/usr/share/kafka/config/server.properties',
+    path => $kafka_config,
     line => 'log.cleaner.threads=2',
   } ->
   file_line { 'set kafka log.cleaner.dedupe.buffer.size=250000000':
-    path => '/usr/share/kafka/config/server.properties',
+    path => $kafka_config,
     line => 'log.cleaner.dedupe.buffer.size=250000000',
   } ->
   file_line { 'set kafka default.replication.factor=':
-    path => '/usr/share/kafka/config/server.properties',
+    path => $kafka_config,
     line => "default.replication.factor=${kafka_replication}",
   }
 }
