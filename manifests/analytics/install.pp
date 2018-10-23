@@ -17,12 +17,9 @@ class contrail::analytics::install (
     }
   }
   package { 'python-gevent' :
-    ensure => latest,
   } ->
   package { 'contrail-openstack-analytics' :
-    ensure => latest,
   } ->
   package { 'contrail-docs' :
-    ensure => latest,
   }
 }

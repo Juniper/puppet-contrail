@@ -10,7 +10,6 @@
 class contrail::heat::install (
 ) {
   package { 'contrail-heat' :
-    ensure => latest,
   }
 
 }
