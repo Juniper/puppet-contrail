@@ -160,7 +160,7 @@ class contrail::analyticsdatabase::config (
   }
 
   if $::analytics_db_config_file and $::analytics_db_config_file != '' {
-    if $::analytics_db_num_tokens and $::analytics_db_num_tokens != '' {
+    if $::analytics_db_num_tokens {
       $cassandra_settings = deep_merge($settings_no_vtokens, {
         'num_tokens'  => $::analytics_db_num_tokens,
       })    
