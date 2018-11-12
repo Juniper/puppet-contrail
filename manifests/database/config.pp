@@ -78,13 +78,21 @@ class contrail::database::config (
   } 
   validate_ipv4_address($zookeeper_client_ip)
 
+  # Use cassandra IP addresses to define ID:
+  #   cassandra_ip must be in the list cassandra_servers
+  #   because cassandra_ip is cassandra's listenning address and
+  #   cassandra_servers is the list of all cassandra servers for 
+  #   clients.
+  #   Names are not suitable because of short vs. fqdn difference 
+  #   in case of host name mappings.
+  $zookeeper_id = extract_id($cassandra_servers, $cassandra_ip)
   file {['/usr/lib', '/usr/lib/zookeeper', '/usr/lib/zookeeper/bin/']:
     ensure => directory
   } ->
   class {'::zookeeper':
     servers   => $zookeeper_server_ips,
     client_ip => $zookeeper_client_ip,
-    id        => extract_id($zookeeper_hostnames, $::hostname),
+    id        => $zookeeper_id,
     cfg_dir   => '/etc/zookeeper',
 #    cfg_dir   => '/etc/zookeeper/conf',
     packages  => $packages,

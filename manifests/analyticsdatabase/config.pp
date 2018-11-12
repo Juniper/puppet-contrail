@@ -185,8 +185,14 @@ class contrail::analyticsdatabase::config (
     hints_directory => '/var/lib/cassandra/hints',
     settings        => $cassandra_settings,
   }
-
-  $kafka_broker_id = extract_id($kafka_hostnames, $::hostname)
+  # Use cassandra IP addresses to define ID:
+  #   cassandra_ip must be in the list cassandra_servers
+  #   because cassandra_ip is cassandra's listenning address and
+  #   cassandra_servers is the list of all cassandra servers for 
+  #   clients.
+  #   Names are not suitable because of short vs. fqdn difference 
+  #   in case of host name mappings.
+  $kafka_broker_id = extract_id($cassandra_servers, $cassandra_ip)
   file { $kafka_config :
     ensure => present,
   } ->
