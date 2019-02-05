@@ -1,3 +1,8 @@
 { "Rules": [
+          {
+               "processname": "contrail-vrouter-dpdk",
+               "process_state": "PROCESS_STATE_RUNNING",
+               "action": "sudo /bin/bash /etc/contrail/vnagent_ExecStartPost.sh;"
+          }
      ]
 }
