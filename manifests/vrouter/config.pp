@@ -123,20 +123,31 @@ class contrail::vrouter::config (
       section => 'DEFAULT',
       setting => 'libvirt_vif_driver',
       value   => 'nova_contrail_vif.contrailvif.VRouterVIFDriver',
-    }
+    } ->
     ini_setting { "use_userspace_vhost":
       ensure  => present,
       path    => '/etc/nova/nova.conf',
       section => 'CONTRAIL',
       setting => 'use_userspace_vhost',
       value   => 'true',
-    }
+    } ->
     ini_setting { "use_huge_pages":
       ensure  => present,
       path    => '/etc/nova/nova.conf',
       section => 'LIBVIRT',
       setting => 'use_huge_pages',
       value   => 'true',
+    } ->
+    file {'/etc/contrail/supervisord_vrouter_files/contrail-vrouter.rules' :
+      ensure  => file,
+      source => 'puppet:///modules/contrail/vrouter/contrail-vrouter.rules',
+    } ->
+    ini_setting { "contrail-vrouter-nodemgr_user_root":
+      ensure  => present,
+      path    => '/etc/contrail/supervisor_vrouter_files/contrail-vrouter-nodemgr.ini',
+      section => 'eventlistener:contrail-vrouter-nodemgr',
+      setting => 'user',
+      value   => 'root',
     }
   }
 
