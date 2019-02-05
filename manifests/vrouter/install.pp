@@ -50,16 +50,12 @@ class contrail::vrouter::install (
       command => 'setenforce permissive',
       path    => '/bin:/sbin:/usr/bin:/usr/sbin',
       onlyif  => 'sestatus | grep -i "Current mode" | grep -q enforcing',
-    }
+    } ->
     file_line { 'make permissive mode persistant':
       ensure => present,
       path   => '/etc/selinux/config',
       line   => 'SELINUX=permissive',
       match  => '^SELINUX=',
-    }
-    file {'/etc/contrail/supervisord_vrouter_files/contrail-vrouter.rules' :
-      ensure  => file,
-      source => '/usr/share/openstack-puppet/modules/contrail/files/vrouter/contrail-vrouter.rules',
     }
   }
   exec { 'ldconfig vrouter agent':
