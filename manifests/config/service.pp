@@ -9,6 +9,8 @@ class contrail::config::service {
   Ini_setting<||> -> Service<| name == $service_name |>
   File_line<||> -> Service<| name == $service_name |>
 
+  Package<| tag == 'contrail-openstack-config' |> ~> Service<| tag == 'supervisor-config' |>
+
   service {'supervisor-config' :
     ensure => running,
     enable => true,

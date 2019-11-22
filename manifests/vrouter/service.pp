@@ -19,6 +19,9 @@ class contrail::vrouter::service(
   Ini_setting<||> -> Service<| name == $service_name |>
   File_line<||> -> Service<| name == $service_name |>
 
+  Package<| tag == 'contrail-vrouter-agent' |> ~> Service<| tag == 'supervisor-vrouter' |>
+
+
   service {'supervisor-vrouter' :
     ensure => running,
     enable => true,

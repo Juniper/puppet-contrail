@@ -14,6 +14,9 @@ class contrail::analyticsdatabase::service {
   Ini_setting<||> -> Service<| name == $service_name |>
   File_line<||> -> Service<| name == $service_name |>
 
+  Package<| tag == 'contrail-openstack-database' |> ~> Service<| tag == 'contrail-database' or tag == 'supervisor-database' |>
+
+
   service {'contrail-database' :
     ensure => running,
     enable => true,
